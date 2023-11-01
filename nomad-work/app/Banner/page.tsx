@@ -20,9 +20,11 @@ const Banner: React.FC = () => {
 
         <p className="text-xl opacity-70 mb-6 md:pr-16">{descText}</p>
 
-        <Link href={"/Discover/page"}><button className="text-white px-10 py-3 rounded-lg text-xl bg-black transition duration-300 hover:text-yellow-500 hover:bg-white mb-6 md:mb-0">
-          Discover
-        </button></Link>
+        <Link href={"/discover/"}>
+          <button className="text-white px-10 py-3 rounded-lg text-xl bg-black transition duration-300 hover:text-yellow-500 hover:bg-white mb-6 md:mb-0">
+            Discover
+          </button>
+        </Link>
       </div>
 
       {/* Özel Görsel (Tablet ve Büyük Ekranlarda) */}
