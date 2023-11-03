@@ -5,6 +5,7 @@ import Navbar from "../Navbar/page";
 
 interface Place {
   name: string;
+  photos: string;
 }
 
 const Page: React.FC = () => {
@@ -34,13 +35,18 @@ const Page: React.FC = () => {
   return (
     <div className="flex flex-col items-center justify-between py-4">
       <Navbar />
-      
+
       <div className="flex w-full justify-center flex-col items-center my-16 gap-4">
         {places.map((place, index) => (
-          <div className="flex flex-row items-center bg-white w-2/3 py-10 rounded-lg" key={index}>
-            <img src="images/banner.jpg" className="w-1/4 object-cover rounded-full"></img>
-            <p>{place.name}</p>
-          
+          <div
+            className="flex flex-row items-start bg-white w-2/3 py-10 px-8 gap-10 rounded-lg"
+            key={index}
+          >
+            <img
+              src={`https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${place.photos[0].photo_reference}&key=API_KEY`}
+              className="rounded-full object-cover h-40 w-40"
+            ></img>
+            <p className="my-4 font-bold">{place.name}</p>
           </div>
         ))}
       </div>
