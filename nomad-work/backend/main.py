@@ -20,10 +20,30 @@ app.add_middleware(
 )
 
 
-@app.get("/discover")
+@app.get("/cafe")
 def discover():
     response = requests.get(
-        f"https://maps.googleapis.com/maps/api/place/nearbysearch/json?keyword=cruise&location=-33.8670522%2C151.1957362&radius=1500&type=restaurant&key=AIzaSyD2_a8WBjvm2Hqv4SKmIpyDkit9w2295aM")
+        f"https://maps.googleapis.com/maps/api/place/nearbysearch/json?keyword=cafe&location=37.8746429%2C32.4931554&radius=1500&key=AIzaSyD2_a8WBjvm2Hqv4SKmIpyDkit9w2295aM")
+    print(response)
+    if response.ok:
+        data = response.json()
+        print(data)
+    return data
+
+@app.get("/restaurant")
+def discover():
+    response = requests.get(
+        f"https://maps.googleapis.com/maps/api/place/nearbysearch/json?keyword=restaurant&location=37.8746429%2C32.4931554&radius=1500&key=AIzaSyD2_a8WBjvm2Hqv4SKmIpyDkit9w2295aM")
+    print(response)
+    if response.ok:
+        data = response.json()
+        print(data)
+    return data
+
+@app.get("/library")
+def discover():
+    response = requests.get(
+        f"https://maps.googleapis.com/maps/api/place/nearbysearch/json?keyword=library&location=37.8746429%2C32.4931554&radius=1500&key=AIzaSyD2_a8WBjvm2Hqv4SKmIpyDkit9w2295aM")
     print(response)
     if response.ok:
         data = response.json()
