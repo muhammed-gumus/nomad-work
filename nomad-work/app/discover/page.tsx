@@ -1,9 +1,10 @@
 "use client";
 import React, { useState } from "react";
 import Navbar from "../Navbar/page";
-import Cafe from "../Cafe/page";
-import Library from "../Library/page";
-import Restaurant from "../Restaurant/page";
+import Cafe from "../Places/Cafe/page";
+import Library from "../Places/Library/page";
+import Restaurant from "../Places/Restaurant/page";
+import Bakery from "../Places/Bakery/page";
 
 const Page: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState("Cafe");
@@ -35,6 +36,16 @@ const Page: React.FC = () => {
           </button>
           <button
             className={`${
+              selectedCategory === "Bakery"
+                ? "text-xl"
+                : "text-base opacity-50 hover:opacity-75"
+            } transition-all duration-300 ease-in-out`}
+            onClick={() => setSelectedCategory("Bakery")}
+          >
+            Bakery
+          </button>
+          <button
+            className={`${
               selectedCategory === "Library"
                 ? "text-xl"
                 : "text-base opacity-50 hover:opacity-75"
@@ -47,6 +58,7 @@ const Page: React.FC = () => {
 
         {selectedCategory === "Cafe" && <Cafe />}
         {selectedCategory === "Restaurant" && <Restaurant />}
+        {selectedCategory === "Restaurant" && <Bakery />}
         {selectedCategory === "Library" && <Library />}
       </div>
     </div>

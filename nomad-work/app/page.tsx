@@ -8,6 +8,7 @@ export default function Home() {
     <main className="flex flex-col items-center justify-between py-4">
       <Navbar/>
       <Banner/>
+      <Link href={"/user"}>mami</Link>
     </main>
   );
 }
