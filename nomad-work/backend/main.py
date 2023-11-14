@@ -1,5 +1,4 @@
-from typing import Union
-
+from typing import Dict
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import Response, status
@@ -64,19 +63,38 @@ def discover():
     return data
 
 
+# Kullanıcı bilgilerini depolamak için bir veri yapısı
+users_db: Dict[str, dict] = {}
+
+
 @app.post("/user")
-def add_font(user: dict):
-    user_id: str = user['user_id']
-    print(user)
-    # Burada backend, gelen user_id'ye göre kullanıcı adını almalı.
-    # Örneğin, veritabanından kullanıcı adını çekebilirsiniz.
-    user_name = get_username_by_user_id(user_id)
-    return {"user_name": user_name}
+def add_user(user: dict):
+    # user_id'yi otomatik olarak atayın
+    user_id = str(len(users_db) + 1)
+    user['user_id'] = user_id
 
-# Bu fonksiyonun gerçekçi bir şekilde veritabanından kullanıcı adını çekmesi gerekiyor.
+    # Kullanıcı bilgilerini depolayın
+    users_db[user_id] = user
+
+    user_name = user.get('username', '')
+    print(f"User Information Received: {user}")
+    print(f"Username: {user_name}")
+    return {"user_name": user_name, "user_id": user_id}
 
 
-def get_username_by_user_id(user_id: str) -> str:
-    # Veritabanı sorgusu yapılacak, kullanıcı adı alınacak.
-    # Burada sadece örnek bir değer döndürüyorum.
-    return "Mami"
+@app.post("/login")
+def login(user_info: dict):
+    user_name = user_info.get('username', '')
+    password = user_info.get('password', '')
+
+    # Kullanıcı adı ve şifreyi kontrol et
+    for user_id, user_data in users_db.items():
+        if user_data.get('username') == user_name and user_data.get('password') == password:
+            return {"message": "Giriş başarıyla gerçekleşti", "user_name": user_name, "user_id": user_id}
+
+    return {"message": "Kullanıcı adı veya şifre hatalı"}
+
+
+@app.get("/users")
+def get_users():
+    return users_db
