@@ -14,10 +14,7 @@ const RegisterPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [isRegister, setIsRegister] = useState(true);
 
-  // user_id'yi otomatik atamak için bir fonksiyon
   const generateUserId = () => {
-    // Burada istediğiniz gibi user_id oluşturabilirsiniz.
-    // Örneğin, rastgele bir sayı kullanabilirsiniz.
     return Math.floor(Math.random() * 1000).toString();
   };
 
@@ -32,7 +29,7 @@ const RegisterPage: React.FC = () => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            user_id: generateUserId(), // Otomatik olarak user_id atandı
+            user_id: generateUserId(),
             first_name: firstName,
             last_name: lastName,
             username: username,
@@ -53,7 +50,6 @@ const RegisterPage: React.FC = () => {
         setEmail("");
         setPassword("");
       } else {
-        // Giriş işlemleri
         const response = await fetch("http://127.0.0.1:8000/login", {
           method: "POST",
           headers: {
@@ -90,7 +86,7 @@ const RegisterPage: React.FC = () => {
   return (
     <div className="flex flex-col items-center justify-between py-4">
       <Navbar />
-      <h1 className="text-2xl font-bold mb-4">
+      <h1 className="text-2xl font-bold mt-12 mb-8">
         {isRegister ? "Kullanıcı Kayıt Sayfası" : "Kullanıcı Giriş Sayfası"}
       </h1>
       {error && <p className="text-red-500">{error}</p>}
@@ -101,7 +97,7 @@ const RegisterPage: React.FC = () => {
             : "Giriş başarıyla gerçekleşti"}
         </p>
       )}
-      <form onSubmit={handleSubmit} className="max-w-md mx-auto">
+      <form onSubmit={handleSubmit} className="w-1/4 mx-auto">
         {isRegister && (
           <>
             <div className="grid grid-cols-2 gap-4 mb-4">
@@ -140,6 +136,23 @@ const RegisterPage: React.FC = () => {
                 />
               </div>
             </div>
+            <div className="mb-4">
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-600"
+              >
+                Mail Adresi
+              </label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="mt-1 p-2 w-full border rounded-md"
+                required
+              />
+            </div>
           </>
         )}
         <div className="mb-4">
@@ -159,23 +172,7 @@ const RegisterPage: React.FC = () => {
             required
           />
         </div>
-        <div className="mb-4">
-          <label
-            htmlFor="email"
-            className="block text-sm font-medium text-gray-600"
-          >
-            Mail Adresi
-          </label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="mt-1 p-2 w-full border rounded-md"
-            required
-          />
-        </div>
+
         <div className="mb-4">
           <label
             htmlFor="password"
@@ -196,13 +193,16 @@ const RegisterPage: React.FC = () => {
         <div>
           <button
             type="submit"
-            className="w-full bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600"
+            className="w-full bg-white text-black p-2 rounded-md hover:text-yellow-500"
           >
             {isRegister ? "Kayıt Ol" : "Giriş Yap"}
           </button>
         </div>
       </form>
-      <p className="mt-4 cursor-pointer text-blue-500" onClick={() => setIsRegister(!isRegister)}>
+      <p
+        className="mt-4 cursor-pointer text-blue-500"
+        onClick={() => setIsRegister(!isRegister)}
+      >
         {isRegister
           ? "Zaten üye misin? Giriş yap"
           : "Üye değil misin? Kayıt ol"}
@@ -212,11 +212,6 @@ const RegisterPage: React.FC = () => {
 };
 
 export default RegisterPage;
-
-
-
-
-
 
 // import React, { useEffect, useState } from "react";
 // import axios from "axios";
