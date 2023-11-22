@@ -1,8 +1,8 @@
-// Bu kısmı istediğiniz gibi düzenleyin
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Navbar from "../Navbar/page";
+import { useRouter } from "next/navigation";
 
 const RegisterPage: React.FC = () => {
   const [firstName, setFirstName] = useState("");
@@ -13,10 +13,19 @@ const RegisterPage: React.FC = () => {
   const [user, setUser] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isRegister, setIsRegister] = useState(true);
+  const [isRegistrationSuccess, setIsRegistrationSuccess] = useState(false);
+  const router = useRouter();
 
   const generateUserId = () => {
     return Math.floor(Math.random() * 1000).toString();
   };
+
+  useEffect(() => {
+    if (isRegistrationSuccess) {
+      console.log("Kullanıcı giriş sayfasına geçiliyor...");
+      // Burada isteğe bağlı olarak başka işlemler de gerçekleştirebilirsiniz.
+    }
+  }, [isRegistrationSuccess]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,6 +58,9 @@ const RegisterPage: React.FC = () => {
         setLastName("");
         setEmail("");
         setPassword("");
+
+        // Kayıt başarıyla gerçekleştiğinde isRegistrationSuccess'i güncelle
+        setIsRegistrationSuccess(true);
       } else {
         const response = await fetch("http://127.0.0.1:8000/login", {
           method: "POST",
@@ -68,11 +80,11 @@ const RegisterPage: React.FC = () => {
         const loginData = await response.json();
 
         if (loginData.message === "Giriş başarıyla gerçekleşti") {
-          setUser(loginData.user_name);
-
+          console.log("Kullanıcı bilgileri:", loginData);
           setUsername("");
           setPassword("");
           setError(null);
+          setUser(loginData.user_name); // Bu satır eklenmiş olmalı
         } else {
           setError("Kullanıcı adı veya şifre hatalı");
         }
@@ -81,6 +93,13 @@ const RegisterPage: React.FC = () => {
       console.error("Fetch error:", error);
       setError(isRegister ? "Kayıt yapılamadı." : "Giriş yapılamadı.");
     }
+  };
+
+  const switchToLogin = () => {
+    setIsRegister(!isRegister);
+    setUsername("");
+    setPassword("");
+    setError(null);
   };
 
   return (
@@ -97,6 +116,15 @@ const RegisterPage: React.FC = () => {
             : "Giriş başarıyla gerçekleşti"}
         </p>
       )}
+
+      {/* İşlem başarıyla gerçekleştiğinde bu kısmı göstermek yerine, istediğiniz başka bir görünümü değiştirebilirsiniz */}
+      {isRegistrationSuccess && (
+        <div className="text-green-500">
+          <p>Kullanıcı giriş sayfasına geçiliyor...</p>
+          {/* İsteğe bağlı olarak başka bir şeyler ekleyebilirsiniz */}
+        </div>
+      )}
+
       <form onSubmit={handleSubmit} className="w-1/4 mx-auto">
         {isRegister && (
           <>
@@ -199,10 +227,7 @@ const RegisterPage: React.FC = () => {
           </button>
         </div>
       </form>
-      <p
-        className="mt-4 cursor-pointer text-blue-500"
-        onClick={() => setIsRegister(!isRegister)}
-      >
+      <p className="mt-4 cursor-pointer text-blue-500" onClick={switchToLogin}>
         {isRegister
           ? "Zaten üye misin? Giriş yap"
           : "Üye değil misin? Kayıt ol"}
@@ -212,34 +237,3 @@ const RegisterPage: React.FC = () => {
 };
 
 export default RegisterPage;
-
-// import React, { useEffect, useState } from "react";
-// import axios from "axios";
-
-// const Page: React.FC = () => {
-//   const [user, setUser] = useState("");
-//   useEffect(() => {
-//     const fetchData = async () => {
-//       const response = await fetch("http://127.0.0.1:8000" + "/user/", {
-//         method: "POST",
-//         headers: {
-//           "Content-Type": "application/json",
-//         },
-//         body: JSON.stringify({ user_id: "111" }),
-//       });
-//       console.log(response);
-//       const font_data = await response.json();
-//       console.log(font_data);
-//       return font_data.user_name;
-//     };
-
-//     fetchData().then((user) => setUser(user));
-//   }, []);
-//   return (
-//     <div className="flex w-full justify-center flex-col items-center my-16 gap-4">
-//       {user}
-//     </div>
-//   );
-// };
-
-// export default Page;

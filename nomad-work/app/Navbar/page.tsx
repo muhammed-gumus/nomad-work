@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect} from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 
 const Navbar: React.FC = () => {
@@ -19,11 +19,11 @@ const Navbar: React.FC = () => {
     };
 
     // Pencere boyutu değiştiğinde handleResize işlevini çağır
-    window.addEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
 
     // Temizlik
     return () => {
-      window.removeEventListener('resize', handleResize);
+      window.removeEventListener("resize", handleResize);
     };
   }, [isMenuOpen]);
   return (
@@ -57,18 +57,20 @@ const Navbar: React.FC = () => {
             x
           </button>
           <ul className="flex gap-4">
-            <MenuItem href="/about" text="About" />
+            <MenuItem href="/About" text="About" />
             <MenuItem href="/offices" text="Offices" />
             <MenuItem href="/contact" text="Contact" />
+            <MenuItem href="/user/register" text="Login/Register" />
           </ul>
         </div>
       )}
 
       {/* Menü Öğeleri (Büyük Ekranlar İçin) */}
       <div className="hidden md:flex space-x-8 list-none">
-        <MenuItem href="/about" text="About" />
+        <MenuItem href="/About" text="About" />
         <MenuItem href="/offices" text="Offices" />
         <MenuItem href="/contact" text="Contact" />
+        <MenuItem href="/user/register" text="Login/Register" />
       </div>
     </nav>
   );
