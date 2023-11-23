@@ -1,11 +1,123 @@
+// components/Page.jsx
+
 "use client";
-import React, { useState } from "react";
+import React from "react";
 import Navbar from "../Navbar/page";
+import Link from "next/link";
+
+const descText =
+  "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."; // Kullanmak istediğiniz özel metin
 
 const Page: React.FC = () => {
   return (
     <div className="flex flex-col items-center justify-between py-4">
       <Navbar />
+
+      <div className="flex flex-col md:flex-row items-center justify-center my-12 mx-4 md:mx-12">
+        <div className="md:w-1/2 md:mr-6 md:flex flex flex-col gap-2 items-start">
+          <p className="text-5xl font-bold mb-4">ABOUT US</p>
+          <p className="mb-4">{descText}</p>
+          <Link href="#our-team">
+            <button className="flex flex-row gap-3 items-center justify-center text-white px-6 py-3 rounded-lg text-xl bg-black transition duration-300 hover:text-yellow-500 hover:bg-white mb-6 md:mb-0">
+              OUR TEAM
+              <svg
+                width="32"
+                height="32"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M7.75735 5.63605L6.34314 7.05026L12 12.7071L17.6569 7.05029L16.2427 5.63608L12 9.87872L7.75735 5.63605Z"
+                  fill="currentColor"
+                />
+                <path
+                  d="M6.34314 12.7071L7.75735 11.2929L12 15.5356L16.2427 11.2929L17.6569 12.7071L12 18.364L6.34314 12.7071Z"
+                  fill="currentColor"
+                />
+              </svg>
+            </button>
+          </Link>
+        </div>
+        <img
+          className="rounded-full object-cover w-full md:w-1/3"
+          src="images/about-banner.png"
+          alt="About Banner"
+        />
+      </div>
+      <div className="w-full flex flex-row tracking-wider text-2xl font-extrabold items-center justify-evenly mt-4 bg-white py-6 text-black ">
+        <div className="flex items-center justify-center gap-2">
+          18 Milyon Üye{" "}
+          <svg
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              fill-rule="evenodd"
+              clip-rule="evenodd"
+              d="M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7ZM14 7C14 8.10457 13.1046 9 12 9C10.8954 9 10 8.10457 10 7C10 5.89543 10.8954 5 12 5C13.1046 5 14 5.89543 14 7Z"
+              fill="currentColor"
+            />
+            <path
+              d="M16 15C16 14.4477 15.5523 14 15 14H9C8.44772 14 8 14.4477 8 15V21H6V15C6 13.3431 7.34315 12 9 12H15C16.6569 12 18 13.3431 18 15V21H16V15Z"
+              fill="currentColor"
+            />
+          </svg>
+        </div>
+        <div className="flex items-center justify-center gap-2">
+          42 Ülke
+          <svg
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              fill-rule="evenodd"
+              clip-rule="evenodd"
+              d="M12.4388 7L14.8387 4H7V10H14.8387L12.4388 7ZM19 12H7V22H5V2H19L15 7L19 12Z"
+              fill="currentColor"
+            />
+          </svg>
+        </div>
+        <div className="flex items-center justify-center gap-2">
+          397 Bin Mekan
+          <svg
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M6 2.5C5.44772 2.5 5 2.94772 5 3.5V5.5C5 6.05228 5.44772 6.5 6 6.5C6.55228 6.5 7 6.05228 7 5.5V3.5C7 2.94772 6.55228 2.5 6 2.5Z"
+              fill="currentColor"
+            />
+            <path
+              fill-rule="evenodd"
+              clip-rule="evenodd"
+              d="M13 21.5C15.973 21.5 18.441 19.3377 18.917 16.5H19C21.2091 16.5 23 14.7091 23 12.5C23 10.2909 21.2091 8.5 19 8.5V7.5H1V15.5C1 18.8137 3.68629 21.5 7 21.5H13ZM3 9.5V15.5C3 17.7091 4.79086 19.5 7 19.5H13C15.2091 19.5 17 17.7091 17 15.5V9.5H3ZM21 12.5C21 13.6046 20.1046 14.5 19 14.5V10.5C20.1046 10.5 21 11.3954 21 12.5Z"
+              fill="currentColor"
+            />
+            <path
+              d="M9 3.5C9 2.94772 9.44771 2.5 10 2.5C10.5523 2.5 11 2.94772 11 3.5V5.5C11 6.05228 10.5523 6.5 10 6.5C9.44771 6.5 9 6.05228 9 5.5V3.5Z"
+              fill="currentColor"
+            />
+            <path
+              d="M14 2.5C13.4477 2.5 13 2.94772 13 3.5V5.5C13 6.05228 13.4477 6.5 14 6.5C14.5523 6.5 15 6.05228 15 5.5V3.5C15 2.94772 14.5523 2.5 14 2.5Z"
+              fill="currentColor"
+            />
+          </svg>
+        </div>
+      </div>
+
+      <div id="our-team" className="m-10">
+        {/* İçerik ekleyin */}
+      </div>
     </div>
   );
 };
