@@ -59,7 +59,7 @@ const Navbar: React.FC = () => {
           <ul className="flex gap-4">
             <MenuItem href="/About" text="About" />
             <MenuItem href="/discover" text="Discover" />
-            <MenuItem href="/contact" text="Contact" />
+            <MenuItem href="/Contact" text="Contact" />
             <MenuItem href="/user/register" text="Login/Register" />
           </ul>
         </div>
@@ -69,7 +69,7 @@ const Navbar: React.FC = () => {
       <div className="hidden md:flex space-x-8 list-none">
         <MenuItem href="/About" text="About" />
         <MenuItem href="/discover" text="Discover" />
-        <MenuItem href="/contact" text="Contact" />
+        <MenuItem href="Contact" text="Contact" />
         <MenuItem href="/user/register" text="Login/Register" />
       </div>
     </nav>
