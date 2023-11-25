@@ -12,6 +12,7 @@ interface Cafe {
 }
 
 const Page: React.FC = () => {
+  const key1 = process.env.PUBLIC_KEY
   const [places, setPlaces] = useState<Cafe[]>([]);
 
   useEffect(() => {
@@ -44,7 +45,7 @@ const Page: React.FC = () => {
         >
           {place.photos && place.photos.length > 0 ? (
             <img
-              src={`https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${place.photos[0].photo_reference}&key=${process.env.PUBLIC_KEY}`}
+              src={`https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${place.photos[0].photo_reference}&key=${key1}`}
               className="rounded-full object-cover h-40 w-40"
               alt={`${place.name} Photo`}
             />

@@ -7,9 +7,10 @@ const containerStyle = {
 };
 
 const center = {
-  lat: 38.0272179,
-  lng: 32.4997315,
+  lat: 38.0204632,
+  lng: 32.5090583,
 };
+
 function MyComponent() {
   const { isLoaded } = useJsApiLoader({
     id: "google-map-script",
@@ -39,11 +40,10 @@ function MyComponent() {
     <GoogleMap
       mapContainerStyle={containerStyle}
       center={center}
-      zoom={13}
-      onLoad={onLoad}
+      zoom={15}
       onUnmount={onUnmount}
     >
-      {/* Child components, such as markers, info windows, etc. */}
+      <marker>mammiiiiii</marker>
       <></>
     </GoogleMap>
   ) : (

@@ -2,47 +2,83 @@
 import React from "react";
 import Navbar from "../Navbar/page";
 import Link from "next/link";
-import Map from "../Maps/page"
+import Map from "../Maps/page";
 
 const descText =
   "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."; // Kullanmak istediğiniz özel metin
 
 const Page: React.FC = () => {
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Form bilgilerini işleme al
+    // Örneğin, bu bilgileri bir API'ye gönderebilirsiniz
+  };
+
   return (
     <div className="flex flex-col items-center justify-between py-4">
       <Navbar />
 
-      <div className="flex flex-col md:flex-row items-center justify-center my-12 mx-4 md:mx-12">
-        <div className="md:w-1/2 md:mr-6 md:flex flex flex-col gap-2 items-start">
-          <p className="text-5xl font-bold mb-4">ABOUT US</p>
-          <p className="mb-4">{descText}</p>
-          <Link href="#our-team">
-            <button className="flex flex-row gap-3 items-center justify-center text-white px-6 py-3 rounded-lg text-xl bg-black transition duration-300 hover:text-yellow-500 hover:bg-white mb-6 md:mb-0">
-              OUR TEAM
-              <svg
-                width="32"
-                height="32"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M7.75735 5.63605L6.34314 7.05026L12 12.7071L17.6569 7.05029L16.2427 5.63608L12 9.87872L7.75735 5.63605Z"
-                  fill="currentColor"
-                />
-                <path
-                  d="M6.34314 12.7071L7.75735 11.2929L12 15.5356L16.2427 11.2929L17.6569 12.7071L12 18.364L6.34314 12.7071Z"
-                  fill="currentColor"
-                />
-              </svg>
-            </button>
-          </Link>
-        </div>
-        <Map/>
-      </div>
+      <div className="flex w-4/5 items-center justify-between md:flex-row flex-col gap-8 my-12 mx-4 md:mx-12">
+        <div className="md:w-1/2 md:mr-6 md:flex flex flex-col  items-start">
+          <h2 className="text-3xl font-bold mb-4 underline">
+            İletişim Bilgileri
+          </h2>
+          <p>Adres: Lorem Ipsum Cad. No:123, 34567 Şehir, Ülke</p>
+          <p>Telefon: (123) 456-7890</p>
+          <p>E-posta: info@example.com</p>
 
-      <div id="our-team" className="m-10">
-        {/* İçerik ekleyin */}
+          <h2 className="text-3xl font-bold my-4 underline">İletişim Formu</h2>
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+            <div className="flex gap-4">
+              <div className="flex-1">
+                <label htmlFor="firstName">Ad</label>
+                <input
+                  type="text"
+                  id="firstName"
+                  name="firstName"
+                  required
+                  className="w-full py-2 rounded-md"
+                />
+              </div>
+              <div className="flex-1">
+                <label htmlFor="lastName">Soyad</label>
+                <input
+                  type="text"
+                  id="lastName"
+                  name="lastName"
+                  required
+                  className="w-full py-2 rounded-md"
+                />
+              </div>
+            </div>
+
+            <label htmlFor="username">Kullanıcı Adı</label>
+            <input
+              type="text"
+              id="username"
+              name="username"
+              required
+              className="w-full py-2 rounded-md"
+            />
+
+            <label htmlFor="email">E-posta</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              required
+              className="w-full py-2 rounded-md"
+            />
+
+            <button
+              type="submit"
+              className="bg-blue-500 text-white px-4 py-2 rounded-md"
+            >
+              Gönder
+            </button>
+          </form>
+        </div>
+        <Map />
       </div>
     </div>
   );

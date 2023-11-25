@@ -60,7 +60,7 @@ const Navbar: React.FC = () => {
             <MenuItem href="/About" text="About" />
             <MenuItem href="/discover" text="Discover" />
             <MenuItem href="/Contact" text="Contact" />
-            <MenuItem href="/user/register" text="Login/Register" />
+            <MenuItem href="/register" text="Login/Register" />
           </ul>
         </div>
       )}
@@ -70,7 +70,7 @@ const Navbar: React.FC = () => {
         <MenuItem href="/About" text="About" />
         <MenuItem href="/discover" text="Discover" />
         <MenuItem href="Contact" text="Contact" />
-        <MenuItem href="/user/register" text="Login/Register" />
+        <MenuItem href="/register" text="Login/Register" />
       </div>
     </nav>
   );
