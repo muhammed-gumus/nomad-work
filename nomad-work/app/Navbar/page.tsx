@@ -58,7 +58,7 @@ const Navbar: React.FC = () => {
           </button>
           <ul className="flex gap-4">
             <MenuItem href="/About" text="About" />
-            <MenuItem href="/offices" text="Offices" />
+            <MenuItem href="/discover" text="Discover" />
             <MenuItem href="/contact" text="Contact" />
             <MenuItem href="/user/register" text="Login/Register" />
           </ul>
@@ -68,7 +68,7 @@ const Navbar: React.FC = () => {
       {/* Menü Öğeleri (Büyük Ekranlar İçin) */}
       <div className="hidden md:flex space-x-8 list-none">
         <MenuItem href="/About" text="About" />
-        <MenuItem href="/offices" text="Offices" />
+        <MenuItem href="/discover" text="Discover" />
         <MenuItem href="/contact" text="Contact" />
         <MenuItem href="/user/register" text="Login/Register" />
       </div>
