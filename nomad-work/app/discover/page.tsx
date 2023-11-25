@@ -34,7 +34,7 @@ const Page: React.FC = () => {
           >
             Restaurant
           </button>
-          <button
+          {/* <button
             className={`${
               selectedCategory === "Bakery"
                 ? "text-xl"
@@ -43,7 +43,7 @@ const Page: React.FC = () => {
             onClick={() => setSelectedCategory("Bakery")}
           >
             Bakery
-          </button>
+          </button> */}
           <button
             className={`${
               selectedCategory === "Library"
@@ -58,7 +58,7 @@ const Page: React.FC = () => {
 
         {selectedCategory === "Cafe" && <Cafe />}
         {selectedCategory === "Restaurant" && <Restaurant />}
-        {selectedCategory === "Restaurant" && <Bakery />}
+        {/* {selectedCategory === "Restaurant" && <Bakery />} */}
         {selectedCategory === "Library" && <Library />}
       </div>
     </div>
