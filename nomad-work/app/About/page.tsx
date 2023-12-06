@@ -1,12 +1,44 @@
 // components/Page.jsx
 
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import Navbar from "../Navbar/page";
 import Link from "next/link";
+import Gmail from "../icons/gmail/page";
+import Twitter from "../icons/twitter/page";
+import Linkedin from "../icons/linkedin/page";
 
 const descText =
-  "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."; // Kullanmak istediğiniz özel metin
+  "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.";
+
+const teamMembers = [
+  {
+    id: 1,
+    name: "John Doe",
+    photo: "/images/user.jpeg",
+  },
+  {
+    id: 2,
+    name: "John Doe",
+    photo: "/images/user.jpeg",
+  },
+  {
+    id: 3,
+    name: "John Doe",
+    photo: "/images/user.jpeg",
+  },
+  {
+    id: 4,
+    name: "John Doe",
+    photo: "/images/user.jpeg",
+  },
+  {
+    id: 4,
+    name: "John Doe",
+    photo: "/images/user.jpeg",
+  },
+  // Add more team members as needed
+];
 
 const Page: React.FC = () => {
   return (
@@ -115,8 +147,31 @@ const Page: React.FC = () => {
         </div>
       </div>
 
-      <div id="our-team" className="m-10">
-        {/* İçerik ekleyin */}
+      <div
+        id="our-team"
+        className="flex w-1/2 items-center justify-center flex-row gap-4 px-24 mt-20"
+      >
+        {/* Team cards */}
+        {teamMembers.map((member) => (
+          <div
+            key={member.id}
+            className="bg-white py-4 px-8 flex justify-center items-center flex-col rounded-lg"
+          >
+            <img
+              className="rounded-full object-cover mb-4"
+              src={member.photo}
+            />
+            <p className="text-xl font-bold mb-2">{member.name}</p>
+            <p className="text-md opacity-70 text-center">{descText}</p>
+            <div className="flex justify-center">
+              <div className="flex flex-row gap-4 mt-4">
+                <Twitter />
+                <Linkedin />
+                <Gmail />
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
