@@ -1,10 +1,13 @@
 from typing import Dict
+from typing import List
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi import Response, status
-import json
 import requests
+from pymongo import MongoClient
 
+myclient = MongoClient(
+    "mongodb+srv://muhammed-gumus:Mami040953@muhammedgumus.80fpuqf.mongodb.net/?retryWrites=true&w=majority")
+db = myclient["Discover"]
 
 app = FastAPI()
 
@@ -17,16 +20,29 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+users_db: Dict[str, dict] = {}
 
 
 @app.get("/cafe")
 def discover():
     response = requests.get(
         f"https://maps.googleapis.com/maps/api/place/nearbysearch/json?keyword=coffee&type=cafe&location=37.8746429%2C32.4931554&radius=1500&key=AIzaSyD2_a8WBjvm2Hqv4SKmIpyDkit9w2295aM")
-    print(response)
+
     if response.ok:
         data = response.json()
-        print(data)
+        new_collection = db["Cafe"]
+
+        if "results" in data:
+            for result in data["results"]:
+                # MongoDB'de aynı veri var mı kontrol et
+                existing_data = new_collection.find_one({"data": result})
+
+                if not existing_data:
+                    # MongoDB'de bulunmayan veriyi ekleyin
+                    x = new_collection.insert_one({"data": result})
+                else:
+                    print("aynı veri var kanki")
+
     return data
 
 
@@ -37,6 +53,9 @@ def discover():
     print(response)
     if response.ok:
         data = response.json()
+        new_collection = db["Restaurant"]
+        # "data" adlı bir anahtarla veriyi ekledik
+        x = new_collection.insert_one({"data": data})
         print(data)
     return data
 
@@ -48,6 +67,9 @@ def discover():
     print(response)
     if response.ok:
         data = response.json()
+        new_collection = db["Library"]
+        # "data" adlı bir anahtarla veriyi ekledik
+        x = new_collection.insert_one({"data": data})
         print(data)
     return data
 
