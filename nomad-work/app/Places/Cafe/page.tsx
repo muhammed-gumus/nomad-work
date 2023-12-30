@@ -1,6 +1,9 @@
 "use client";
+// Import edilen modülleri ekleyin
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import Link from "next/link";
+import { ParsedUrlQueryInput } from "querystring";
 
 interface Cafe {
   name: string;
@@ -12,15 +15,12 @@ interface Cafe {
 }
 
 const Page: React.FC = () => {
-  const key1 = process.env.PUBLIC_KEY
   const [places, setPlaces] = useState<Cafe[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await axios.get("http://127.0.0.1:8000/cafe");
-        console.log(response);
-
         const data = await response.data;
         setPlaces(data.results);
       } catch (error) {
@@ -39,13 +39,14 @@ const Page: React.FC = () => {
   return (
     <div className="flex w-full justify-center flex-col items-center my-16 gap-4">
       {places.map((place, index) => (
-        <div
+        <Link
           className="flex flex-row items-start bg-white w-2/3 py-8 px-8 gap-8 rounded-lg"
-          key={index}
+          href={`/PlaceDetails/${place.place_id}`}
+          key={place.place_id}
         >
           {place.photos && place.photos.length > 0 ? (
             <img
-              src={`https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${place.photos[0].photo_reference}&key=AIzaSyD2_a8WBjvm2Hqv4SKmIpyDkit9w2295aM`}
+              src={`https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${place.photos[0].photo_reference}&key=AIzaSyB--nWp1tPUs48E0zPePM7eLeS4c9Ny9JE`}
               className="rounded-full object-cover h-40 w-40"
               alt={`${place.name} Photo`}
             />
@@ -60,10 +61,97 @@ const Page: React.FC = () => {
             <p className="my-4 font-bold">{place.name}</p>
             <p className="my-4 ">{place.vicinity}</p>
           </div>
-        </div>
+        </Link>
       ))}
     </div>
   );
 };
 
 export default Page;
+
+
+// "use client";
+// // pages/index.tsx
+// import React, { useEffect, useState } from "react";
+// import axios from "axios";
+// import CustomModal from "../../Modal/page";
+
+// interface Cafe {
+//   name: string;
+//   photos?: { photo_reference: string }[];
+//   opening_hours?: { open_now: boolean };
+//   rating?: number;
+//   vicinity: string;
+//   place_id: string;
+// }
+
+// const Page: React.FC = () => {
+//   const [places, setPlaces] = useState<Cafe[]>([]);
+//   const [selectedPlace, setSelectedPlace] = useState<Cafe | null>(null);
+
+//   useEffect(() => {
+//     const fetchData = async () => {
+//       try {
+//         const response = await axios.get("http://127.0.0.1:8000/cafe");
+//         const data = await response.data;
+//         setPlaces(data.results);
+//       } catch (error) {
+//         console.error("Veri alınırken hata oluştu:", error);
+//         setPlaces([]);
+//       }
+//     };
+
+//     fetchData();
+//   }, []);
+
+//   const openModal = (place: Cafe) => {
+//     setSelectedPlace(place);
+//   };
+
+//   const closeModal = () => {
+//     setSelectedPlace(null);
+//   };
+
+//   if (places.length === 0) {
+//     return <div>Yükleniyor...</div>;
+//   }
+
+//   return (
+//     <div className="flex w-full justify-center flex-col items-center my-16 gap-4">
+//       {places.map((place, index) => (
+//         <div
+//           key={place.place_id}
+//           onClick={() => openModal(place)}
+//           className="flex flex-row items-start bg-white w-2/3 py-8 px-8 gap-8 rounded-lg cursor-pointer"
+//         >
+//           {place.photos && place.photos.length > 0 ? (
+//             <img
+//               src={`https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${place.photos[0].photo_reference}&key=AIzaSyB--nWp1tPUs48E0zPePM7eLeS4c9Ny9JE`}
+//               className="rounded-full object-cover h-40 w-40"
+//               alt={`${place.name} Photo`}
+//             />
+//           ) : (
+//             <img
+//               src="https://pgsd.fip.hamzanwadi.ac.id/assets/upload/image/aa.png"
+//               className="rounded-full object-cover h-40 w-40"
+//               alt="Default Photo"
+//             />
+//           )}
+//           <div>
+//             <p className="my-4 font-bold">{place.name}</p>
+//             <p className="my-4 ">{place.vicinity}</p>
+//           </div>
+//         </div>
+//       ))}
+//       {selectedPlace && (
+//         <CustomModal
+//           isOpen={!!selectedPlace}
+//           closeModal={closeModal}
+//           place={selectedPlace}
+//         />
+//       )}
+//     </div>
+//   );
+// };
+
+// export default Page;
