@@ -6,15 +6,19 @@ const containerStyle = {
   height: "450px",
 };
 
-const center = {
-  lat: 38.0204632,
-  lng: 32.5090583,
-};
+interface MapProps {
+  lat: number;
+  lng: number;
+}
 
-function MyComponent() {
+function MyComponent({ lat, lng }: MapProps) {
+  const center = {
+    lat: lat,
+    lng: lng,
+  };
   const { isLoaded } = useJsApiLoader({
     id: "google-map-script",
-    googleMapsApiKey: "AIzaSyD2_a8WBjvm2Hqv4SKmIpyDkit9w2295aM",
+    googleMapsApiKey: "AIzaSyB--nWp1tPUs48E0zPePM7eLeS4c9Ny9JE",
   });
 
   const [map, setMap] = React.useState<google.maps.Map | null>(null);
@@ -43,7 +47,7 @@ function MyComponent() {
       zoom={15}
       onUnmount={onUnmount}
     >
-      <marker>mammiiiiii</marker>
+      {/* Marker componenti yerine Marker elementi kullanılmalı */}
       <></>
     </GoogleMap>
   ) : (
