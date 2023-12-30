@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-
+import Link from "next/link";
 interface Restaurant {
   name: string;
   photos?: { photo_reference: string }[];
@@ -38,9 +38,10 @@ const Page: React.FC = () => {
   return (
     <div className="flex w-full justify-center flex-col items-center my-16 gap-4">
       {places.map((place, index) => (
-        <div
+        <Link
           className="flex flex-row items-start bg-white w-2/3 py-8 px-8 gap-8 rounded-lg"
-          key={index}
+          href={`/PlaceDetails/${place.place_id}`}
+          key={place.place_id}
         >
           {place.photos && place.photos.length > 0 ? (
             <img
@@ -59,7 +60,7 @@ const Page: React.FC = () => {
             <p className="my-4 font-bold">{place.name}</p>
             <p className="my-4 ">{place.vicinity}</p>
           </div>
-        </div>
+        </Link>
       ))}
     </div>
   );
