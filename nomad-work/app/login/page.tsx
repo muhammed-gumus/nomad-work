@@ -4,12 +4,15 @@
 import React, { useState } from "react";
 import Navbar from "../Navbar/page";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 const LoginPage: React.FC = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,10 +37,12 @@ const LoginPage: React.FC = () => {
 
       if (loginData.message === "Giriş başarıyla gerçekleşti") {
         console.log("Kullanıcı bilgileri:", loginData);
+        setIsAuthenticated(true);
         setUsername("");
         setPassword("");
         setError(null);
         setUser(loginData.user_name);
+        loginRedirect(loginData.message);
       } else {
         setError("Kullanıcı adı veya şifre hatalı");
       }
@@ -47,9 +52,18 @@ const LoginPage: React.FC = () => {
     }
   };
 
+  const loginRedirect = (log: string) => {
+    if (log === "Giriş başarıyla gerçekleşti") {
+      console.log("yöönlendirme başarılı");
+      router.push("/", { scroll: false });
+    } else {
+      console.log("yönlendirme başarılı değil");
+    }
+  };
+
   return (
     <div className="flex flex-col items-center justify-between py-4">
-      <Navbar />
+      <Navbar isAuthenticated={isAuthenticated} />
       <h1 className="text-2xl font-bold mt-12 mb-8">Kullanıcı Giriş Sayfası</h1>
       {error && <p className="text-red-500">{error}</p>}
       {user && <p className="text-green-500">Giriş başarıyla gerçekleşti</p>}
