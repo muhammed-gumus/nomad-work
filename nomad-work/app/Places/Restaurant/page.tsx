@@ -44,7 +44,7 @@ const Page: React.FC = () => {
         >
           {place.photos && place.photos.length > 0 ? (
             <img
-              src={`https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${place.photos[0].photo_reference}&key=AIzaSyD2_a8WBjvm2Hqv4SKmIpyDkit9w2295aM`}
+              src={`https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${place.photos[0].photo_reference}&key=AIzaSyB--nWp1tPUs48E0zPePM7eLeS4c9Ny9JE`}
               className="rounded-full object-cover h-40 w-40"
               alt={`${place.name} Photo`}
             />
