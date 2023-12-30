@@ -126,7 +126,7 @@ const ContactPage: React.FC = () => {
             </button>
           </form>
         </div>
-        <Map lat={38.0204632} lng={32.5090583}/>
+        <Map width="70%" height="400px" lat={38.0268432} lng={32.5101583} />
       </div>
     </div>
   );

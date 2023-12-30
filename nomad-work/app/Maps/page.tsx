@@ -1,21 +1,23 @@
 import React from "react";
-import { GoogleMap, useJsApiLoader } from "@react-google-maps/api";
-
-const containerStyle = {
-  width: "500px",
-  height: "450px",
-};
+import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
 
 interface MapProps {
   lat: number;
   lng: number;
+  width: string;
+  height: string;
 }
 
-function MyComponent({ lat, lng }: MapProps) {
+function MyComponent({ lat, lng, width, height }: MapProps) {
   const center = {
     lat: lat,
     lng: lng,
   };
+  const containerStyle = {
+    width: width,
+    height: height,
+  };
+
   const { isLoaded } = useJsApiLoader({
     id: "google-map-script",
     googleMapsApiKey: "AIzaSyB--nWp1tPUs48E0zPePM7eLeS4c9Ny9JE",
@@ -42,14 +44,16 @@ function MyComponent({ lat, lng }: MapProps) {
 
   return isLoaded ? (
     <GoogleMap
-      mapContainerStyle={containerStyle}
-      center={center}
-      zoom={15}
-      onUnmount={onUnmount}
-    >
-      {/* Marker componenti yerine Marker elementi kullanılmalı */}
-      <></>
-    </GoogleMap>
+    mapContainerStyle={containerStyle}
+    center={center}
+    zoom={20}
+    onUnmount={onUnmount}
+  >
+    <Marker
+      position={{ lat, lng }}
+      animation={google.maps.Animation.BOUNCE} // Example animation, you can use DROP or BOUNCE
+    />
+  </GoogleMap>
   ) : (
     <></>
   );
