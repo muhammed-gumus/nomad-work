@@ -2,10 +2,10 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Navbar from "../Navbar/page";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Link from "next/link";
+import Navbar from "@/components/Navbar";
 
 const RegisterPage: React.FC = () => {
   const [firstName, setFirstName] = useState("");
@@ -76,7 +76,6 @@ const RegisterPage: React.FC = () => {
 
   return (
     <div className="flex flex-col items-center justify-between py-4">
-      <Navbar />
       <h1 className="text-2xl font-bold mt-12 mb-8">Kullanıcı Kayıt Sayfası</h1>
       {error && <p className="text-red-500">{error}</p>}
 

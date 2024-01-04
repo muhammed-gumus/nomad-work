@@ -2,9 +2,9 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Navbar from "../Navbar/page";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import Navbar from "@/components/Navbar";
 
 const LoginPage: React.FC = () => {
   const [username, setUsername] = useState("");
@@ -80,7 +80,6 @@ const LoginPage: React.FC = () => {
 
   return (
     <div className="flex flex-col items-center justify-between py-4">
-      <Navbar isAuthenticated={isAuthenticated} />
       <h1 className="text-2xl font-bold mt-12 mb-8">Kullanıcı Giriş Sayfası</h1>
       {error && <p className="text-red-500">{error}</p>}
       {user && <p className="text-green-500">Giriş başarıyla gerçekleşti</p>}

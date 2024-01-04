@@ -1,10 +1,10 @@
 "use client";
 import React from "react";
-import Navbar from "../../Navbar/page";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import Map from "../../Maps/page";
-import Modal from "../../ImageModal/page";
+import Map from "../../../components/Maps";
+import Navbar from "@/components/Navbar";
+import Modal from "@/components/ImageModal";
 
 interface PageProps {
   params: {
@@ -143,7 +143,6 @@ const Page: React.FC<PageProps> = ({ params }) => {
 
   return (
     <div className="flex flex-col items-center py-4">
-      <Navbar />
       {cafe ? (
         <div className="flex flex-col w-full mt-8">
           <div className="flex flex-row-reverse items-center justify-center w-full gap-24 ">

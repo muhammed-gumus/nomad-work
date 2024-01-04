@@ -2,11 +2,11 @@
 
 "use client";
 import React, { useState } from "react";
-import Navbar from "../Navbar/page";
 import Link from "next/link";
 import Gmail from "../icons/gmail/page";
 import Twitter from "../icons/twitter/page";
 import Linkedin from "../icons/linkedin/page";
+import Navbar from "@/components/Navbar";
 
 const descText =
   "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.";
@@ -43,7 +43,6 @@ const teamMembers = [
 const Page: React.FC = () => {
   return (
     <div className="flex flex-col items-center justify-between py-4">
-      <Navbar />
 
       <div className="flex flex-col md:flex-row items-center justify-center my-12 mx-4 md:mx-12">
         <div className="md:w-1/2 md:mr-6 md:flex flex flex-col gap-2 items-start">
