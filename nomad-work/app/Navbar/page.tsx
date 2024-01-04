@@ -1,9 +1,23 @@
+// Navbar.tsx
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 
-const Navbar: React.FC = () => {
+interface NavbarProps {
+  isAuthenticated?: boolean;
+}
+
+const Navbar: React.FC<NavbarProps> = ({ isAuthenticated }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [loggedInUsername, setLoggedInUsername] = useState("");
+
+  useEffect(() => {
+    // Kullanıcı girişi durumuna göre localStorage'den kullanıcı adını al
+    if (isAuthenticated) {
+      setLoggedInUsername(localStorage.getItem("username") || "");
+    }
+  }, [isAuthenticated]);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -26,6 +40,7 @@ const Navbar: React.FC = () => {
       window.removeEventListener("resize", handleResize);
     };
   }, [isMenuOpen]);
+
   return (
     <nav className="p-8 px-24 flex justify-between items-center w-full text-black bg-white rounded-sm">
       {/* Logo */}
@@ -67,10 +82,28 @@ const Navbar: React.FC = () => {
 
       {/* Menü Öğeleri (Büyük Ekranlar İçin) */}
       <div className="hidden md:flex space-x-8 list-none">
-        <MenuItem href="/About" text="About" />
-        <MenuItem href="/discover" text="Discover" />
-        <MenuItem href="Contact" text="Contact" />
-        <MenuItem href="/register" text="Login/Register" />
+        {isAuthenticated ? (
+          // Kullanıcı giriş yaptıysa, kullanıcının adını göster
+          <div className="flex items-center">
+            <span className="mr-2 cursor-pointer">{loggedInUsername}</span>
+            <Image
+              src="/avatar.jpg" // Eklediğiniz avatar görselinin yolu
+              alt="Avatar"
+              width={32}
+              height={32}
+              className="rounded-full"
+            />
+            <span className="ml-2 cursor-pointer">Profil</span>
+          </div>
+        ) : (
+          // Kullanıcı giriş yapmadıysa login/register linklerini göster
+          <div className="flex space-x-4">
+            <MenuItem href="/About" text="About" />
+            <MenuItem href="/discover" text="Discover" />
+            <MenuItem href="/Contact" text="Contact" />
+            <MenuItem href="/register" text="Login/Register" />
+          </div>
+        )}
       </div>
     </nav>
   );

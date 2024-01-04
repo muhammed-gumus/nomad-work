@@ -1,7 +1,7 @@
 // login.tsx
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Navbar from "../Navbar/page";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -13,6 +13,17 @@ const LoginPage: React.FC = () => {
   const [user, setUser] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+
+  useEffect(() => {
+    // Sayfa yüklendiğinde, eğer kullanıcı daha önce giriş yapmışsa otomatik olarak yönlendir
+    const jwtToken = localStorage.getItem("jwtToken");
+    if (jwtToken) {
+      // Burada gerçek bir authentication işlemi yapmanız gerekebilir (örneğin, token'ı doğrulamak)
+      setIsAuthenticated(true);
+      setUser(localStorage.getItem("username") || null);
+      router.push("/", { scroll: false });
+    }
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,6 +53,12 @@ const LoginPage: React.FC = () => {
         setPassword("");
         setError(null);
         setUser(loginData.user_name);
+
+        // JWT'yi localStorage'e kaydet
+        localStorage.setItem("jwtToken", loginData.access_token);
+        // Kullanıcı adını localStorage'e kaydet
+        localStorage.setItem("username", loginData.user_name);
+
         loginRedirect(loginData.message);
       } else {
         setError("Kullanıcı adı veya şifre hatalı");
@@ -54,10 +71,10 @@ const LoginPage: React.FC = () => {
 
   const loginRedirect = (log: string) => {
     if (log === "Giriş başarıyla gerçekleşti") {
-      console.log("yöönlendirme başarılı");
+      console.log("Yönlendirme başarılı");
       router.push("/", { scroll: false });
     } else {
-      console.log("yönlendirme başarılı değil");
+      console.log("Yönlendirme başarılı değil");
     }
   };
 

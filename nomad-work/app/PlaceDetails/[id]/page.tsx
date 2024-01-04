@@ -4,6 +4,7 @@ import Navbar from "../../Navbar/page";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import Map from "../../Maps/page";
+import Modal from "../../ImageModal/page";
 
 interface PageProps {
   params: {
@@ -59,13 +60,13 @@ interface Library {
   };
 }
 
-
 const Page: React.FC<PageProps> = ({ params }) => {
   const { id } = params;
 
   const [cafe, setCafe] = useState<Cafe | null>(null);
   const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
   const [library, setLibrary] = useState<Library | null>(null);
+  const [modalImageUrl, setModalImageUrl] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -130,10 +131,20 @@ const Page: React.FC<PageProps> = ({ params }) => {
     fetchData();
   }, [id]);
 
+  // Resme tıklama olayını dinleyen fonksiyon
+  const handleImageClick = (imageUrl: string) => {
+    setModalImageUrl(imageUrl);
+  };
+
+  // Modal'ı kapatma fonksiyonu
+  const handleCloseModal = () => {
+    setModalImageUrl(null);
+  };
+
   return (
     <div className="flex flex-col items-center py-4">
       <Navbar />
-      {cafe ?(
+      {cafe ? (
         <div className="flex flex-col w-full mt-8">
           <div className="flex flex-row-reverse items-center justify-center w-full gap-24 ">
             <div>
@@ -142,6 +153,14 @@ const Page: React.FC<PageProps> = ({ params }) => {
                   src={`https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${cafe.photos[0].photo_reference}&key=AIzaSyB--nWp1tPUs48E0zPePM7eLeS4c9Ny9JE`}
                   className="object-cover"
                   alt={`${cafe.name} Photo`}
+                  style={{ width: "450px", height: "300px" }}
+                  onClick={() =>
+                    cafe.photos &&
+                    cafe.photos[0] &&
+                    handleImageClick(
+                      `https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&photo_reference=${cafe.photos[0]?.photo_reference}&key=AIzaSyB--nWp1tPUs48E0zPePM7eLeS4c9Ny9JE`
+                    )
+                  }
                 />
               ) : (
                 <img
@@ -149,6 +168,9 @@ const Page: React.FC<PageProps> = ({ params }) => {
                   className="rounded-full object-cover h-40 w-40"
                   alt="Default Photo"
                 />
+              )}
+              {modalImageUrl && (
+                <Modal imageUrl={modalImageUrl} onClose={handleCloseModal} />
               )}
             </div>
             <div className="flex flex-col gap-4">
@@ -164,15 +186,15 @@ const Page: React.FC<PageProps> = ({ params }) => {
             </div>
           </div>
           <div className="flex w-full items-center justify-center mt-8">
-          <Map
-            lat={cafe.geometry.location.lat}
-            lng={cafe.geometry.location.lng}
-            width="70%"
-            height="400px"
-          />
+            <Map
+              lat={cafe.geometry.location.lat}
+              lng={cafe.geometry.location.lng}
+              width="70%"
+              height="400px"
+            />
           </div>
         </div>
-      ): restaurant ? (
+      ) : restaurant ? (
         <div className="flex flex-col w-full mt-8">
           <div className="flex flex-row-reverse items-center justify-center w-full gap-24 ">
             <div>
@@ -181,6 +203,14 @@ const Page: React.FC<PageProps> = ({ params }) => {
                   src={`https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${restaurant.photos[0].photo_reference}&key=AIzaSyB--nWp1tPUs48E0zPePM7eLeS4c9Ny9JE`}
                   className="object-cover"
                   alt={`${restaurant.name} Photo`}
+                  style={{ width: "450px", height: "300px" }}
+                  onClick={() =>
+                    restaurant.photos &&
+                    restaurant.photos[0] &&
+                    handleImageClick(
+                      `https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&photo_reference=${restaurant.photos[0]?.photo_reference}&key=AIzaSyB--nWp1tPUs48E0zPePM7eLeS4c9Ny9JE`
+                    )
+                  }
                 />
               ) : (
                 <img
@@ -188,6 +218,9 @@ const Page: React.FC<PageProps> = ({ params }) => {
                   className="rounded-full object-cover h-40 w-40"
                   alt="Default Photo"
                 />
+              )}
+              {modalImageUrl && (
+                <Modal imageUrl={modalImageUrl} onClose={handleCloseModal} />
               )}
             </div>
             <div className="flex flex-col gap-4">
@@ -203,55 +236,66 @@ const Page: React.FC<PageProps> = ({ params }) => {
             </div>
           </div>
           <div className="flex w-full items-center justify-center mt-8">
-          <Map
-            lat={restaurant.geometry.location.lat}
-            lng={restaurant.geometry.location.lng}
-            width="70%"
-            height="400px"
-          />
+            <Map
+              lat={restaurant.geometry.location.lat}
+              lng={restaurant.geometry.location.lng}
+              width="70%"
+              height="400px"
+            />
           </div>
         </div>
-      ) : (
-        library ? (
-          <div className="flex flex-col w-full mt-8">
-            <div className="flex flex-row-reverse items-center justify-center w-full gap-24 ">
-              <div>
-                {library.photos && library.photos.length > 0 ? (
-                  <img
-                    src={`https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${library.photos[0].photo_reference}&key=AIzaSyB--nWp1tPUs48E0zPePM7eLeS4c9Ny9JE`}
-                    className="object-cover"
-                    alt={`${library.name} Photo`}
-                  />
-                ) : (
-                  <img
-                    src="https://pgsd.fip.hamzanwadi.ac.id/assets/upload/image/aa.png"
-                    className="rounded-full object-cover h-40 w-40"
-                    alt="Default Photo"
-                  />
-                )}
-              </div>
-              <div className="flex flex-col gap-4">
-                <p className="text-2xl font-bold">{"İsim: " + library.name}</p>
-                <p>{"Toplam Değerlendirme: " + library.user_ratings_total}</p>
-                <p>{"Puan: " + library.rating}</p>
-                <p>
-                  {library.opening_hours?.open_now == true
-                    ? "Çalışma Durumu : (Açık)"
-                    : "Çalışma Durumu : (Kapalı)"}
-                </p>
-                <p>{library.vicinity}</p>
-              </div>
+      ) : library ? (
+        <div className="flex flex-col w-full mt-8">
+          <div className="flex flex-row-reverse items-center justify-center w-full gap-24 ">
+            <div>
+              {library.photos && library.photos.length > 0 ? (
+                <img
+                  src={`https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${library.photos[0].photo_reference}&key=AIzaSyB--nWp1tPUs48E0zPePM7eLeS4c9Ny9JE`}
+                  className="object-cover"
+                  alt={`${library.name} Photo`}
+                  style={{ width: "450px", height: "300px" }}
+                  onClick={() =>
+                    library.photos &&
+                    library.photos[0] &&
+                    handleImageClick(
+                      `https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&photo_reference=${library.photos[0]?.photo_reference}&key=AIzaSyB--nWp1tPUs48E0zPePM7eLeS4c9Ny9JE`
+                    )
+                  }
+                />
+              ) : (
+                <img
+                  src="https://pgsd.fip.hamzanwadi.ac.id/assets/upload/image/aa.png"
+                  className="rounded-full object-cover h-40 w-40"
+                  alt="Default Photo"
+                />
+              )}
+              {modalImageUrl && (
+                <Modal imageUrl={modalImageUrl} onClose={handleCloseModal} />
+              )}
             </div>
-            <div className="flex w-full items-center justify-center mt-8">
+            <div className="flex flex-col gap-4">
+              <p className="text-2xl font-bold">{"İsim: " + library.name}</p>
+              <p>{"Toplam Değerlendirme: " + library.user_ratings_total}</p>
+              <p>{"Puan: " + library.rating}</p>
+              <p>
+                {library.opening_hours?.open_now == true
+                  ? "Çalışma Durumu : (Açık)"
+                  : "Çalışma Durumu : (Kapalı)"}
+              </p>
+              <p>{library.vicinity}</p>
+            </div>
+          </div>
+          <div className="flex w-full items-center justify-center mt-8">
             <Map
               lat={library.geometry.location.lat}
               lng={library.geometry.location.lng}
               width="70%"
               height="400px"
             />
-            </div>
           </div>
-        ) : (<p>no result</p>)
+        </div>
+      ) : (
+        <p>no result</p>
       )}
     </div>
   );
