@@ -142,17 +142,16 @@ const Page: React.FC<PageProps> = ({ params }) => {
   };
 
   return (
-    <div className="flex flex-col items-center py-4">
+    <div className="flex flex-col items-center py-4 ">
       {cafe ? (
-        <div className="flex flex-col w-full mt-8">
-          <div className="flex flex-row-reverse items-center justify-center w-full gap-24 ">
+        <div className="flex flex-col py-8 items-center mt-8 bg-white w-2/3">
+          <div className="flex flex-row justify-evenly items-center w-full bg-white px-8 gap-8 rounded-lg">
             <div>
               {cafe.photos && cafe.photos.length > 0 ? (
                 <img
                   src={`https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${cafe.photos[0].photo_reference}&key=AIzaSyB--nWp1tPUs48E0zPePM7eLeS4c9Ny9JE`}
-                  className="object-cover"
+                  className="rounded-full object-cover h-48 w-48"
                   alt={`${cafe.name} Photo`}
-                  style={{ width: "450px", height: "300px" }}
                   onClick={() =>
                     cafe.photos &&
                     cafe.photos[0] &&
@@ -172,8 +171,10 @@ const Page: React.FC<PageProps> = ({ params }) => {
                 <Modal imageUrl={modalImageUrl} onClose={handleCloseModal} />
               )}
             </div>
-            <div className="flex flex-col gap-4">
-              <p className="text-2xl font-bold">{"İsim: " + cafe.name}</p>
+            <div className="flex flex-col">
+              <p className="tracking-[.20em] mb-4 text-3xl font-bold">
+                {cafe.name}
+              </p>
               <p>{"Toplam Değerlendirme: " + cafe.user_ratings_total}</p>
               <p>{"Puan: " + cafe.rating}</p>
               <p>
@@ -181,28 +182,27 @@ const Page: React.FC<PageProps> = ({ params }) => {
                   ? "Çalışma Durumu : (Açık)"
                   : "Çalışma Durumu : (Kapalı)"}
               </p>
-              <p>{cafe.vicinity}</p>
+              <p>{"Adres: " + cafe.vicinity}</p>
             </div>
           </div>
           <div className="flex w-full items-center justify-center mt-8">
             <Map
               lat={cafe.geometry.location.lat}
               lng={cafe.geometry.location.lng}
-              width="70%"
+              width="80%"
               height="400px"
             />
           </div>
         </div>
       ) : restaurant ? (
-        <div className="flex flex-col w-full mt-8">
-          <div className="flex flex-row-reverse items-center justify-center w-full gap-24 ">
+        <div className="flex flex-col py-8 items-center mt-8 bg-white w-2/3">
+          <div className="flex flex-row justify-evenly items-center w-full bg-white px-8 gap-8 rounded-lg">
             <div>
               {restaurant.photos && restaurant.photos.length > 0 ? (
                 <img
                   src={`https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${restaurant.photos[0].photo_reference}&key=AIzaSyB--nWp1tPUs48E0zPePM7eLeS4c9Ny9JE`}
-                  className="object-cover"
+                  className="rounded-full object-cover h-48 w-48"
                   alt={`${restaurant.name} Photo`}
-                  style={{ width: "450px", height: "300px" }}
                   onClick={() =>
                     restaurant.photos &&
                     restaurant.photos[0] &&
@@ -222,8 +222,10 @@ const Page: React.FC<PageProps> = ({ params }) => {
                 <Modal imageUrl={modalImageUrl} onClose={handleCloseModal} />
               )}
             </div>
-            <div className="flex flex-col gap-4">
-              <p className="text-2xl font-bold">{"İsim: " + restaurant.name}</p>
+            <div className="flex flex-col">
+              <p className="tracking-[.20em] mb-4 text-3xl font-bold">
+                {restaurant.name}
+              </p>
               <p>{"Toplam Değerlendirme: " + restaurant.user_ratings_total}</p>
               <p>{"Puan: " + restaurant.rating}</p>
               <p>
@@ -231,28 +233,27 @@ const Page: React.FC<PageProps> = ({ params }) => {
                   ? "Çalışma Durumu : (Açık)"
                   : "Çalışma Durumu : (Kapalı)"}
               </p>
-              <p>{restaurant.vicinity}</p>
+              <p>{"Adres: " + restaurant.vicinity}</p>
             </div>
           </div>
           <div className="flex w-full items-center justify-center mt-8">
             <Map
               lat={restaurant.geometry.location.lat}
               lng={restaurant.geometry.location.lng}
-              width="70%"
+              width="80%"
               height="400px"
             />
           </div>
         </div>
       ) : library ? (
-        <div className="flex flex-col w-full mt-8">
-          <div className="flex flex-row-reverse items-center justify-center w-full gap-24 ">
+        <div className="flex flex-col py-8 items-center mt-8 bg-white w-2/3">
+          <div className="flex flex-row justify-evenly items-center w-full bg-white px-8 gap-8 rounded-lg">
             <div>
               {library.photos && library.photos.length > 0 ? (
                 <img
                   src={`https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${library.photos[0].photo_reference}&key=AIzaSyB--nWp1tPUs48E0zPePM7eLeS4c9Ny9JE`}
-                  className="object-cover"
+                  className="rounded-full object-cover h-48 w-48"
                   alt={`${library.name} Photo`}
-                  style={{ width: "450px", height: "300px" }}
                   onClick={() =>
                     library.photos &&
                     library.photos[0] &&
@@ -272,8 +273,10 @@ const Page: React.FC<PageProps> = ({ params }) => {
                 <Modal imageUrl={modalImageUrl} onClose={handleCloseModal} />
               )}
             </div>
-            <div className="flex flex-col gap-4">
-              <p className="text-2xl font-bold">{"İsim: " + library.name}</p>
+            <div className="flex flex-col">
+              <p className="tracking-[.20em] mb-4 text-3xl font-bold">
+                {library.name}
+              </p>
               <p>{"Toplam Değerlendirme: " + library.user_ratings_total}</p>
               <p>{"Puan: " + library.rating}</p>
               <p>
@@ -281,14 +284,14 @@ const Page: React.FC<PageProps> = ({ params }) => {
                   ? "Çalışma Durumu : (Açık)"
                   : "Çalışma Durumu : (Kapalı)"}
               </p>
-              <p>{library.vicinity}</p>
+              <p>{"Adres: " + library.vicinity}</p>
             </div>
           </div>
           <div className="flex w-full items-center justify-center mt-8">
             <Map
               lat={library.geometry.location.lat}
               lng={library.geometry.location.lng}
-              width="70%"
+              width="80%"
               height="400px"
             />
           </div>
