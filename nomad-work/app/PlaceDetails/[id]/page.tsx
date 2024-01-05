@@ -5,6 +5,7 @@ import axios from "axios";
 import Map from "../../../components/Maps";
 import Navbar from "@/components/Navbar";
 import Modal from "@/components/ImageModal";
+import Link from "next/link";
 
 interface PageProps {
   params: {
@@ -67,6 +68,16 @@ const Page: React.FC<PageProps> = ({ params }) => {
   const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
   const [library, setLibrary] = useState<Library | null>(null);
   const [modalImageUrl, setModalImageUrl] = useState<string | null>(null);
+  const [comments, setComments] = useState<string[]>([]);
+  const [newComment, setNewComment] = useState<string>("");
+
+  const handleSubmitComment = () => {
+    if (newComment.trim() !== "") {
+      setComments((prevComments) => [...prevComments, newComment]);
+      setNewComment("");
+    }
+  };
+  
 
   useEffect(() => {
     const fetchData = async () => {
@@ -142,17 +153,16 @@ const Page: React.FC<PageProps> = ({ params }) => {
   };
 
   return (
-    <div className="flex flex-col items-center py-4">
+    <div className="flex flex-col items-center py-4 ">
       {cafe ? (
-        <div className="flex flex-col w-full mt-8">
-          <div className="flex flex-row-reverse items-center justify-center w-full gap-24 ">
+        <div className="flex flex-row py-8 justify-center mt-8 bg-white bg-opacity-80 rounded-lg w-2/3">
+          <div className="flex flex-col justify-center items-center w-full  px-8 gap-4 rounded-lg">
             <div>
               {cafe.photos && cafe.photos.length > 0 ? (
                 <img
                   src={`https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${cafe.photos[0].photo_reference}&key=AIzaSyB--nWp1tPUs48E0zPePM7eLeS4c9Ny9JE`}
-                  className="object-cover"
+                  className="rounded-full object-cover h-52 w-52 cursor-pointer hover:scale-110"
                   alt={`${cafe.name} Photo`}
-                  style={{ width: "450px", height: "300px" }}
                   onClick={() =>
                     cafe.photos &&
                     cafe.photos[0] &&
@@ -172,8 +182,10 @@ const Page: React.FC<PageProps> = ({ params }) => {
                 <Modal imageUrl={modalImageUrl} onClose={handleCloseModal} />
               )}
             </div>
-            <div className="flex flex-col gap-4">
-              <p className="text-2xl font-bold">{"İsim: " + cafe.name}</p>
+            <div className="flex flex-col items-center">
+              <p className="tracking-[.15em] mb-2 text-3xl font-bold">
+                {cafe.name}
+              </p>
               <p>{"Toplam Değerlendirme: " + cafe.user_ratings_total}</p>
               <p>{"Puan: " + cafe.rating}</p>
               <p>
@@ -181,28 +193,48 @@ const Page: React.FC<PageProps> = ({ params }) => {
                   ? "Çalışma Durumu : (Açık)"
                   : "Çalışma Durumu : (Kapalı)"}
               </p>
-              <p>{cafe.vicinity}</p>
+              <p>{"Adres: " + cafe.vicinity}</p>
+              <Link href="#form">
+              <button className="flex flex-row gap-3 items-center justify-center text-white px-4 py-2 rounded-lg text-l bg-black transition duration-300 hover:scale-110 mt-2">
+                DEĞERLENDİR
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M7.75735 5.63605L6.34314 7.05026L12 12.7071L17.6569 7.05029L16.2427 5.63608L12 9.87872L7.75735 5.63605Z"
+                    fill="currentColor"
+                  />
+                  <path
+                    d="M6.34314 12.7071L7.75735 11.2929L12 15.5356L16.2427 11.2929L17.6569 12.7071L12 18.364L6.34314 12.7071Z"
+                    fill="currentColor"
+                  />
+                </svg>
+              </button>
+              </Link>
             </div>
           </div>
-          <div className="flex w-full items-center justify-center mt-8">
+          <div className="flex w-full items-center justify-center">
             <Map
               lat={cafe.geometry.location.lat}
               lng={cafe.geometry.location.lng}
-              width="70%"
+              width="80%"
               height="400px"
             />
           </div>
         </div>
       ) : restaurant ? (
-        <div className="flex flex-col w-full mt-8">
-          <div className="flex flex-row-reverse items-center justify-center w-full gap-24 ">
+        <div className="flex flex-col py-8 items-center mt-8 bg-white w-2/3">
+          <div className="flex flex-row justify-evenly items-center w-full bg-white px-8 gap-8 rounded-lg">
             <div>
               {restaurant.photos && restaurant.photos.length > 0 ? (
                 <img
                   src={`https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${restaurant.photos[0].photo_reference}&key=AIzaSyB--nWp1tPUs48E0zPePM7eLeS4c9Ny9JE`}
-                  className="object-cover"
+                  className="rounded-full object-cover h-48 w-48"
                   alt={`${restaurant.name} Photo`}
-                  style={{ width: "450px", height: "300px" }}
                   onClick={() =>
                     restaurant.photos &&
                     restaurant.photos[0] &&
@@ -222,8 +254,10 @@ const Page: React.FC<PageProps> = ({ params }) => {
                 <Modal imageUrl={modalImageUrl} onClose={handleCloseModal} />
               )}
             </div>
-            <div className="flex flex-col gap-4">
-              <p className="text-2xl font-bold">{"İsim: " + restaurant.name}</p>
+            <div className="flex flex-col">
+              <p className="tracking-[.20em] mb-4 text-3xl font-bold">
+                {restaurant.name}
+              </p>
               <p>{"Toplam Değerlendirme: " + restaurant.user_ratings_total}</p>
               <p>{"Puan: " + restaurant.rating}</p>
               <p>
@@ -231,28 +265,27 @@ const Page: React.FC<PageProps> = ({ params }) => {
                   ? "Çalışma Durumu : (Açık)"
                   : "Çalışma Durumu : (Kapalı)"}
               </p>
-              <p>{restaurant.vicinity}</p>
+              <p>{"Adres: " + restaurant.vicinity}</p>
             </div>
           </div>
           <div className="flex w-full items-center justify-center mt-8">
             <Map
               lat={restaurant.geometry.location.lat}
               lng={restaurant.geometry.location.lng}
-              width="70%"
+              width="80%"
               height="400px"
             />
           </div>
         </div>
       ) : library ? (
-        <div className="flex flex-col w-full mt-8">
-          <div className="flex flex-row-reverse items-center justify-center w-full gap-24 ">
+        <div className="flex flex-col py-8 items-center mt-8 bg-white w-2/3">
+          <div className="flex flex-row justify-evenly items-center w-full bg-white px-8 gap-8 rounded-lg">
             <div>
               {library.photos && library.photos.length > 0 ? (
                 <img
                   src={`https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${library.photos[0].photo_reference}&key=AIzaSyB--nWp1tPUs48E0zPePM7eLeS4c9Ny9JE`}
-                  className="object-cover"
+                  className="rounded-full object-cover h-48 w-48"
                   alt={`${library.name} Photo`}
-                  style={{ width: "450px", height: "300px" }}
                   onClick={() =>
                     library.photos &&
                     library.photos[0] &&
@@ -272,8 +305,10 @@ const Page: React.FC<PageProps> = ({ params }) => {
                 <Modal imageUrl={modalImageUrl} onClose={handleCloseModal} />
               )}
             </div>
-            <div className="flex flex-col gap-4">
-              <p className="text-2xl font-bold">{"İsim: " + library.name}</p>
+            <div className="flex flex-col">
+              <p className="tracking-[.20em] mb-4 text-3xl font-bold">
+                {library.name}
+              </p>
               <p>{"Toplam Değerlendirme: " + library.user_ratings_total}</p>
               <p>{"Puan: " + library.rating}</p>
               <p>
@@ -281,14 +316,14 @@ const Page: React.FC<PageProps> = ({ params }) => {
                   ? "Çalışma Durumu : (Açık)"
                   : "Çalışma Durumu : (Kapalı)"}
               </p>
-              <p>{library.vicinity}</p>
+              <p>{"Adres: " + library.vicinity}</p>
             </div>
           </div>
           <div className="flex w-full items-center justify-center mt-8">
             <Map
               lat={library.geometry.location.lat}
               lng={library.geometry.location.lng}
-              width="70%"
+              width="80%"
               height="400px"
             />
           </div>
@@ -296,6 +331,30 @@ const Page: React.FC<PageProps> = ({ params }) => {
       ) : (
         <p>no result</p>
       )}
+      <div className="flex flex-col py-4 items-center mt-8 justify-center bg-white bg-opacity-80 rounded-lg w-2/3">
+  <p className="text-2xl font-bold ">DEĞERLENDİRMELER</p>
+  <ul className="flex flex-col gap-4 w-3/4 mt-4">
+    {comments.map((comment, index) => (
+      <li className="w-full bg-white w-2/3 py-2 px-4 rounded-lg" key={index}>{comment}</li>
+    ))}
+  </ul>
+  <div id="form" className="mt-8 w-3/4 flex justify-center">
+    <input
+      type="text"
+      value={newComment}
+      onChange={(e) => setNewComment(e.target.value)}
+      placeholder="Yorumunuzu buraya yazın..."
+      className="border p-2 w-full rounded-lg"
+    />
+    <button
+      onClick={handleSubmitComment}
+      className="ml-2 px-4 bg-blue-500 w-2/5 text-white rounded"
+    >
+      Yorum Gönder
+    </button>
+  </div>
+</div>
+
     </div>
   );
 };
