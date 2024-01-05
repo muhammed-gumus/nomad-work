@@ -12,10 +12,13 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from config import MONGO_URI, GMAIL_SENDER_EMAIL, GMAIL_SENDER_PASSWORD
 # MongoDB connections
-myclient = MongoClient("mongodb+srv://muhammed-gumus:Mami040953@muhammedgumus.80fpuqf.mongodb.net/?retryWrites=true&w=majority")
+myclient = MongoClient(
+    "mongodb+srv://muhammed-gumus:Mami040953@muhammedgumus.80fpuqf.mongodb.net/?retryWrites=true&w=majority")
 
 db1 = myclient["Discover"]
 db2 = myclient["Users"]
+db3 = myclient["Mails"]
+
 
 # FastAPI app
 app = FastAPI()
@@ -30,67 +33,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# # Endpoint isimleri ve bölge koordinatları
-# endpoints = {
-#     "cafe": {"keyword": "coffee", "type": "cafe", "radius": 1500},
-#     "restaurant": {"keyword": "konya", "type": "restaurant", "radius": 1500},
-#     "library": {"keyword": "kütüphane", "type": "library", "radius": 1500},
-#     # Diğer alanlar eklenmeli...
-# }
-
-# # MongoDB koleksiyon adları
-# collection_names = ["area1", "area2", "area3", "area4",
-#                     "area5", "area6", "area7", "area8", "area9", "area10"]
-
-# # Konya koordinatları
-# konya_coords = (37.8746429, 32.4931554)
-
-# # Endpoint'leri işleyen fonksiyon
-
-
-# def process_endpoint(endpoint_name, keyword, place_type, radius, center_coords):
-#     # Konya bölgesini 10'a bölerek istekleri yap
-#     for i in range(1, 11):
-#         start_angle = (i - 1) * 36
-#         end_angle = i * 36
-#         endpoint_coords = generate_coords(
-#             center_coords, start_angle, end_angle)
-
-#         for j in range(10):
-#             response = requests.get(
-#                 f"https://maps.googleapis.com/maps/api/place/nearbysearch/json?keyword={keyword}&type={place_type}&location={endpoint_coords[0]}%2C{endpoint_coords[1]}&radius={radius}&key=AIzaSyB--nWp1tPUs48E0zPePM7eLeS4c9Ny9JE")
-
-#             if response.ok:
-#                 data = response.json()
-#                 if data.get("status") == "OK":
-#                     new_collection = db1[collection_names[i - 1]]
-#                     x = new_collection.insert_one({"data": data})
-#                 else:
-#                     print(
-#                         f"No results for endpoint {endpoint_name}, area {i}, attempt {j + 1}")
-#             else:
-#                 print(
-#                     f"Error in request for endpoint {endpoint_name}, area {i}, attempt {j + 1}. Status code: {response.status_code}")
-
-# Koordinatları hesaplayan yardımcı fonksiyon
-
-
-# def generate_coords(center_coords, start_angle, end_angle):
-#     radius = 15000  # Mesela, 15000 metre yarıçapında bir alan alıyoruz
-#     center_lat, center_lon = center_coords
-
-#     # Hesaplamaları yap ve yeni koordinatları döndür
-#     # Bu örnek, basit bir hesaplama olabilir ve geliştirilmeye açık olabilir
-#     # Ayrıca, dönüşü yapılacak koordinatların uygun bir format içinde olması önemlidir
-#     new_lat = center_lat + radius * 0.000008983 * (start_angle + end_angle) / 2
-#     new_lon = center_lon + radius * 0.000008983 * (start_angle + end_angle) / 2
-
-#     return new_lat, new_lon
-
-# # Her bir endpoint için işlem yap
-# for endpoint_name, endpoint_data in endpoints.items():
-#     process_endpoint(
-#         endpoint_name, endpoint_data["keyword"], endpoint_data["type"], endpoint_data["radius"], konya_coords)
 
 # Security
 SECRET_KEY = "your-secret-key"
@@ -231,9 +173,7 @@ def discover():
 
 # E-posta gönderme fonksiyonu
 def send_email(receiver_email, subject, body):
-    
-    
-
+    try:
         with smtplib.SMTP("smtp.gmail.com", 587) as server:
             sender_email = GMAIL_SENDER_EMAIL
             sender_password = GMAIL_SENDER_PASSWORD
@@ -248,17 +188,89 @@ def send_email(receiver_email, subject, body):
             server.login(sender_email, sender_password)
             server.sendmail(sender_email, receiver_email, message.as_string())
             print("E-posta gönderildi.")
-            error_code = e.smtp_code
-            error_message = e.smtp_error
-            print(error_message)
+    except smtplib.SMTPException as e:
+        print("E-posta gönderme hatası:", e)
 
 
 @app.post("/send-email")
 def send_user_email(user_info: dict):
-    receiver_email = "mr.silver.mg@gmail.com"  # E-postayı alacak adres
-    subject = "Konu: İletişim Formu"
-    body = f"Ad: {user_info.get('firstName', '')}\nSoyad: {user_info.get('lastName', '')}\nKullanıcı Adı: {user_info.get('username', '')}\nE-posta: {user_info.get('email', '')}\nMesaj: {user_info.get('text', '')}"
+    new_user = {
+        "username": user_info.get("username", ""),
+        "email": user_info.get("email", ""),
+        "message": user_info.get("text", ""),
+        # You can add other user information
+    }
 
-    send_email(receiver_email, subject, body)
+    try:
+        new_collection = db3["Mails"]  # Define the collection
+        result = new_collection.insert_one(new_user)
+        user_id = str(result.inserted_id)
+        user_name = new_user.get("username", "")
+        print(f"User Information Received: {new_user}")
+        print(f"User Name: {user_name}")
+        return {"user_name": user_name, "user_id": user_id}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
-    return {"message": "E-posta gönderildi"}
+
+# # Endpoint isimleri ve bölge koordinatları
+# endpoints = {
+#     "cafe": {"keyword": "coffee", "type": "cafe", "radius": 1500},
+#     "restaurant": {"keyword": "konya", "type": "restaurant", "radius": 1500},
+#     "library": {"keyword": "kütüphane", "type": "library", "radius": 1500},
+#     # Diğer alanlar eklenmeli...
+# }
+
+# # MongoDB koleksiyon adları
+# collection_names = ["area1", "area2", "area3", "area4",
+#                     "area5", "area6", "area7", "area8", "area9", "area10"]
+
+# # Konya koordinatları
+# konya_coords = (37.8746429, 32.4931554)
+
+# # Endpoint'leri işleyen fonksiyon
+
+
+# def process_endpoint(endpoint_name, keyword, place_type, radius, center_coords):
+#     # Konya bölgesini 10'a bölerek istekleri yap
+#     for i in range(1, 11):
+#         start_angle = (i - 1) * 36
+#         end_angle = i * 36
+#         endpoint_coords = generate_coords(
+#             center_coords, start_angle, end_angle)
+
+#         for j in range(10):
+#             response = requests.get(
+#                 f"https://maps.googleapis.com/maps/api/place/nearbysearch/json?keyword={keyword}&type={place_type}&location={endpoint_coords[0]}%2C{endpoint_coords[1]}&radius={radius}&key=AIzaSyB--nWp1tPUs48E0zPePM7eLeS4c9Ny9JE")
+
+#             if response.ok:
+#                 data = response.json()
+#                 if data.get("status") == "OK":
+#                     new_collection = db1[collection_names[i - 1]]
+#                     x = new_collection.insert_one({"data": data})
+#                 else:
+#                     print(
+#                         f"No results for endpoint {endpoint_name}, area {i}, attempt {j + 1}")
+#             else:
+#                 print(
+#                     f"Error in request for endpoint {endpoint_name}, area {i}, attempt {j + 1}. Status code: {response.status_code}")
+
+# Koordinatları hesaplayan yardımcı fonksiyon
+
+
+# def generate_coords(center_coords, start_angle, end_angle):
+#     radius = 15000  # Mesela, 15000 metre yarıçapında bir alan alıyoruz
+#     center_lat, center_lon = center_coords
+
+#     # Hesaplamaları yap ve yeni koordinatları döndür
+#     # Bu örnek, basit bir hesaplama olabilir ve geliştirilmeye açık olabilir
+#     # Ayrıca, dönüşü yapılacak koordinatların uygun bir format içinde olması önemlidir
+#     new_lat = center_lat + radius * 0.000008983 * (start_angle + end_angle) / 2
+#     new_lon = center_lon + radius * 0.000008983 * (start_angle + end_angle) / 2
+
+#     return new_lat, new_lon
+
+# # Her bir endpoint için işlem yap
+# for endpoint_name, endpoint_data in endpoints.items():
+#     process_endpoint(
+#         endpoint_name, endpoint_data["keyword"], endpoint_data["type"], endpoint_data["radius"], konya_coords)
