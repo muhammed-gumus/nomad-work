@@ -14,36 +14,47 @@ const descText =
 const teamMembers = [
   {
     id: 1,
-    name: "John Doe",
-    photo: "/images/user.jpeg",
+    name: "Muhammed Gümüş",
+    title: "CEO",
+    photo: "/images/mami.jpeg",
+    desc: "Ben Muhammed. Bilgisayar Mühendisliği 4. sınıf öğrencisiyim. Architecht'te Software Engineer olarak çalışıyorum. Boş zamanlarımda open-source projelere katkıda bulunup topluluklarda aktif olarak rol alıyorum.",
   },
   {
     id: 2,
-    name: "John Doe",
-    photo: "/images/user.jpeg",
+    name: "Alperen Keleş",
+    title: "Software Engineer",
+    photo: "/images/keles.png",
+    desc: "Ben Alperen. Birçok ilgi alanım var. ODTÜ CENG mezunuyum, şu anda UMD CS'de Leonidas Lampropoulos'un danışmanlığında üçüncü sınıf doktora öğrencisiyim. Özellik Tabanlı Test ve Biçimsel Doğrulama üzerine araştırmalar yapıyorum, kişisel blogumda yazmayı seviyorum.",
   },
   {
     id: 3,
-    name: "John Doe",
-    photo: "/images/user.jpeg",
+    name: "Umut Şirin",
+    title: "CTO",
+    photo: "/images/usirin.png",
+    desc: "Ben Umut. Discord'da Staff Full Stack Engineer olarak çalışıyorum. kampus isimli bir discord sunucum var ve burada Türkçe yazılım içerikleri üretiyor, insanlarla birlikte projeler geliştiriyorum.",
   },
   {
     id: 4,
-    name: "John Doe",
-    photo: "/images/user.jpeg",
-  },
-  {
-    id: 4,
-    name: "John Doe",
-    photo: "/images/user.jpeg",
+    name: "Can Şirin",
+    title: "Software Engineer",
+    photo: "/images/can.jpeg",
+    desc: "Ben Can. ServiceNow'da Software Engineer olarak çalışıyorum. Ürün problemlerini teknik çözümlerle ele almayı seven bir yazılım mühendisiyim, öğrenmekten asla vazgeçmeyen ve bilgisini çevresiyle paylaşmayı seven bir takım oyuncusuyum.",
   },
   // Add more team members as needed
 ];
 
+const MAX_DESC_LENGTH = 120; // Set the maximum length for the description text
+
+const truncateDesc = (desc: any) => {
+  if (desc.length > MAX_DESC_LENGTH) {
+    return `${desc.substring(0, MAX_DESC_LENGTH)} ...`;
+  }
+  return desc;
+};
+
 const Page: React.FC = () => {
   return (
     <div className="flex flex-col items-center justify-between py-4">
-
       <div className="flex flex-col md:flex-row items-center justify-center my-12 mx-4 md:mx-12">
         <div className="md:w-1/2 md:mr-6 md:flex flex flex-col gap-2 items-start">
           <p className="text-5xl font-bold mb-4">ABOUT US</p>
@@ -148,22 +159,28 @@ const Page: React.FC = () => {
 
       <div
         id="our-team"
-        className="flex w-1/2 items-center justify-center flex-row gap-4 px-24 mt-20"
+        className="flex flex-col items-center justify-center mt-12"
       >
-        {/* Team cards */}
+        <p className="text-4xl font-bold">OUR TEAM</p>
+        <div className="grid grid-cols-4 w-full items-start justify-center gap-4 px-8 mt-8 mb-10">
+          {/* Team cards */}
         {teamMembers.map((member) => (
           <div
             key={member.id}
-            className="bg-white py-4 px-8 flex justify-center items-center flex-col rounded-lg"
+            className="bg-white w-full px-4 py-4 flex justify-center items-center flex-col rounded-lg"
           >
+            
             <img
-              className="rounded-full object-cover mb-4"
+              className="rounded-full object-cover py-2 px-2 w-2/3 "
               src={member.photo}
             />
-            <p className="text-xl font-bold mb-2">{member.name}</p>
-            <p className="text-md opacity-70 text-center">{descText}</p>
+            <p className="text-2xl font-bold mb-2">{member.name}</p>
+            <p className="text-l italic mb-2">{member.title}</p>
+            <p className="text-md opacity-70 text-center line-clamp-5 hover:line-clamp-none transition delay-150 duration-300 hover:delay-300">
+              {member.desc}
+            </p>
             <div className="flex justify-center">
-              <div className="flex flex-row gap-4 mt-4">
+              <div className="flex flex-row gap-4 mt-2">
                 <Twitter />
                 <Linkedin />
                 <Gmail />
@@ -171,6 +188,7 @@ const Page: React.FC = () => {
             </div>
           </div>
         ))}
+        </div>
       </div>
     </div>
   );
