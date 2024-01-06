@@ -3,21 +3,24 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import useLocalStorage from "@/useLocalStorage";
 
-interface NavbarProps {
-  isAuthenticated?: boolean;
-}
-
-const Navbar: React.FC<NavbarProps> = ({ isAuthenticated }) => {
+const Navbar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [loggedInUsername, setLoggedInUsername] = useState("");
 
+  const [value] = useLocalStorage("jwtToken", null);
+  const [nameControl,] = useLocalStorage("username", null) 
+  console.log(value);
+  console.log(nameControl)
+  
+
   useEffect(() => {
     // Kullanıcı girişi durumuna göre localStorage'den kullanıcı adını al
-    if (isAuthenticated) {
+    if (value && nameControl) {
       setLoggedInUsername(localStorage.getItem("username") || "");
     }
-  }, [isAuthenticated]);
+  }, [value, nameControl]);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -42,11 +45,11 @@ const Navbar: React.FC<NavbarProps> = ({ isAuthenticated }) => {
   }, [isMenuOpen]);
 
   return (
-    <nav className="p-8 px-24 flex justify-between items-center w-full text-black bg-white rounded-sm">
+    <nav className="py-2 px-24 flex justify-between items-center w-full text-black bg-white rounded-sm">
       {/* Logo */}
       <div className="text-2xl font-bold hidden md:block">
         <Link href="/">
-          <span className="cursor-pointer">Logo</span>
+          <img src="images/logo.jpeg" className="cursor-pointer w-20 rounded-full"/>
         </Link>
       </div>
 
@@ -72,17 +75,17 @@ const Navbar: React.FC<NavbarProps> = ({ isAuthenticated }) => {
             x
           </button>
           <ul className="flex gap-4">
-            <MenuItem href="/About" text="About" />
-            <MenuItem href="/discover" text="Discover" />
-            <MenuItem href="/Contact" text="Contact" />
-            <MenuItem href="/register" text="Login/Register" />
+            <MenuItem href="/About" text="Hakkımızda" />
+            <MenuItem href="/discover" text="Keşfet" />
+            <MenuItem href="/Contact" text="İletişim" />
+            <MenuItem href="/register" text="Giriş Yap/Kayıt Ol" />
           </ul>
         </div>
       )}
 
       {/* Menü Öğeleri (Büyük Ekranlar İçin) */}
       <div className="hidden md:flex space-x-8 list-none">
-        {isAuthenticated ? (
+        {value ? (
           // Kullanıcı giriş yaptıysa, kullanıcının adını göster
           <div className="flex items-center">
             <span className="mr-2 cursor-pointer">{loggedInUsername}</span>
@@ -98,10 +101,10 @@ const Navbar: React.FC<NavbarProps> = ({ isAuthenticated }) => {
         ) : (
           // Kullanıcı giriş yapmadıysa login/register linklerini göster
           <div className="flex space-x-4">
-            <MenuItem href="/About" text="About" />
-            <MenuItem href="/discover" text="Discover" />
-            <MenuItem href="/Contact" text="Contact" />
-            <MenuItem href="/register" text="Login/Register" />
+            <MenuItem href="/About" text="Hakkımızda" />
+            <MenuItem href="/discover" text="Keşfet" />
+            <MenuItem href="/Contact" text="İletişim" />
+            <MenuItem href="/register" text="Giriş Yap/Kayıt Ol" />
           </div>
         )}
       </div>
