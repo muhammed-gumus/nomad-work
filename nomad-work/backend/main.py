@@ -1,3 +1,4 @@
+from fastapi import Depends
 from fastapi import FastAPI, HTTPException, Depends
 from pymongo import MongoClient
 from fastapi.middleware.cors import CORSMiddleware
@@ -18,6 +19,7 @@ myclient = MongoClient(
 db1 = myclient["Discover"]
 db2 = myclient["Users"]
 db3 = myclient["Mails"]
+db4 = myclient["Comments"]
 
 
 # FastAPI app
@@ -126,6 +128,47 @@ def login_for_token(user_info: dict):
         headers={"WWW-Authenticate": "Bearer"},
     )
 # Example protected endpoint using JWT for authentication
+
+
+# ...
+
+
+@app.get("/comments")
+def get_comments():
+    try:
+        # MongoDB'den tüm yorumları al
+        comments_collection = db4["Comment"]
+        comments = comments_collection.find({}, {"_id": 0})
+
+        # Yorumları liste halinde döndür
+        return list(comments)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+# Yorumları kaydetmek için yeni endpoint
+
+
+@app.post("/comments")
+def add_comment(comment_data: dict):
+    comment = comment_data.get("comment", "")
+    username = comment_data.get("username", "")
+    place_name = comment_data.get("place_name", "")
+
+    # MongoDB'ye yorumu ekleyin
+    new_collection = db4["Comment"]
+    try:
+        result = new_collection.insert_one({
+            "place_name": place_name,
+            "username": username,
+            "comment": comment,
+            "timestamp": datetime.utcnow()
+        })
+
+        comment_id = str(result.inserted_id)
+        print(f"Yorum Başarıyla Kaydedildi: {comment}")
+        return {"comment_id": comment_id}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.get("/users", response_model=dict)
