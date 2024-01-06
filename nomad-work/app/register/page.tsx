@@ -75,16 +75,17 @@ const RegisterPage: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-between py-4">
-      <h1 className="text-2xl font-bold mt-12 mb-8">Kullanıcı Kayıt Sayfası</h1>
+    <div className="flex flex-col items-center py-4 mt-8">
+      <div className="flex flex-col px-8 py-4 items-center justify-center mt-8 bg-white bg-opacity-50 rounded-lg w-1/3">
+      <h1 className="text-3xl font-bold mb-8">KAYIT OL</h1>
       {error && <p className="text-red-500">{error}</p>}
 
-      <form onSubmit={handleSubmit} className="w-1/4 mx-auto">
+      <form onSubmit={handleSubmit} className="w-full mx-auto">
         <div className="grid grid-cols-2 gap-4 mb-4">
           <div>
             <label
               htmlFor="firstName"
-              className="block text-sm font-medium text-gray-600"
+              className="block text-sm font-medium text-black"
             >
               İsim
             </label>
@@ -101,7 +102,7 @@ const RegisterPage: React.FC = () => {
           <div>
             <label
               htmlFor="lastName"
-              className="block text-sm font-medium text-gray-600"
+              className="block text-sm font-medium text-black"
             >
               Soyisim
             </label>
@@ -119,7 +120,7 @@ const RegisterPage: React.FC = () => {
         <div className="mb-4">
           <label
             htmlFor="email"
-            className="block text-sm font-medium text-gray-600"
+            className="block text-sm font-medium text-black"
           >
             Mail Adresi
           </label>
@@ -136,7 +137,7 @@ const RegisterPage: React.FC = () => {
         <div className="mb-4">
           <label
             htmlFor="username"
-            className="block text-sm font-medium text-gray-600"
+            className="block text-sm font-medium text-black"
           >
             Kullanıcı Adı
           </label>
@@ -153,7 +154,7 @@ const RegisterPage: React.FC = () => {
         <div className="mb-4">
           <label
             htmlFor="password"
-            className="block text-sm font-medium text-gray-600"
+            className="block text-sm font-medium text-black"
           >
             Şifre
           </label>
@@ -190,6 +191,7 @@ const RegisterPage: React.FC = () => {
           )}
         </div>
       </form>
+      </div>
       <ToastContainer />
     </div>
   );

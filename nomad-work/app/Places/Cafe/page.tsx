@@ -5,6 +5,15 @@ import axios from "axios";
 import Link from "next/link";
 import { ParsedUrlQueryInput } from "querystring";
 
+const LoadingSpinner: React.FC = () => (
+  <div className="flex items-center justify-center mt-8">
+    <div className="animate-spin rounded-full h-36 w-36 border-t-8 border-white"></div>
+    <span className="ml-6 text-2xl font-semibold text-white">
+      Yükleniyor...
+    </span>
+  </div>
+);
+
 interface Cafe {
   name: string;
   photos?: { photo_reference: string }[];
@@ -16,6 +25,7 @@ interface Cafe {
 
 const Page: React.FC = () => {
   const [places, setPlaces] = useState<Cafe[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -23,17 +33,19 @@ const Page: React.FC = () => {
         const response = await axios.get("http://127.0.0.1:8000/cafe");
         const data = await response.data;
         setPlaces(data.results);
+        setLoading(false);
       } catch (error) {
         console.error("Error fetching data:", error);
         setPlaces([]);
+        setLoading(false);
       }
     };
 
     fetchData();
   }, []);
 
-  if (places.length === 0) {
-    return <div>Loading...</div>;
+  if (loading) {
+    return <LoadingSpinner />;
   }
 
   return (
@@ -59,7 +71,10 @@ const Page: React.FC = () => {
           )}
           <div>
             <p className="my-4 font-bold">{place.name}</p>
-            <p className="my-4 ">{place.vicinity}</p>
+            <p className="my-4 ">Adres: {place.vicinity}</p>
+            <p className="my-4">
+              Çalışma Durumu: {place.opening_hours?.open_now ? "Açık" : "Kapalı"}
+            </p>
           </div>
         </Link>
       ))}
@@ -68,7 +83,6 @@ const Page: React.FC = () => {
 };
 
 export default Page;
-
 
 // "use client";
 // // pages/index.tsx

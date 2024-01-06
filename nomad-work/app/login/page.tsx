@@ -5,6 +5,8 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
+import useLocalStorage from "@/useLocalStorage";
+import { log } from "console";
 
 const LoginPage: React.FC = () => {
   const [username, setUsername] = useState("");
@@ -13,15 +15,18 @@ const LoginPage: React.FC = () => {
   const [user, setUser] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const [localUserName, setLocalUserName] = useLocalStorage("username", null);
+  const [localToken, setLocalToken] = useLocalStorage("jwtToken", null);
 
   useEffect(() => {
     // Sayfa yüklendiğinde, eğer kullanıcı daha önce giriş yapmışsa otomatik olarak ana sayfaya yönlendir
-    const jwtToken = localStorage.getItem("jwtToken");
-    if (jwtToken) {
+    // const jwtToken = localStorage.getItem("jwtToken");
+
+    if (localToken) {
       // Burada gerçek bir authentication işlemi yapmanız gerekebilir (örneğin, token'ı doğrulamak)
-      const storedUsername = localStorage.getItem("username") || null;
+      // const storedUsername = localStorage.getItem("username") || null;
       setIsAuthenticated(true);
-      setUser(storedUsername);
+      setUser(localUserName);
     }
   }, []);
 
@@ -40,11 +45,26 @@ const LoginPage: React.FC = () => {
         }),
       });
 
+      const tokenRes = await fetch("http://127.0.0.1:8000/token", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username: username,
+          password: password,
+        }),
+      });
+
+      const tokenData = await tokenRes.json();
+      console.log(tokenData, "x mami");
+
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
 
       const loginData = await response.json();
+      console.log(loginData, "login data");
 
       if (loginData.message === "Giriş başarıyla gerçekleşti") {
         console.log("Kullanıcı bilgileri:", loginData);
@@ -55,9 +75,14 @@ const LoginPage: React.FC = () => {
         setUser(loginData.user_name);
 
         // JWT'yi localStorage'e kaydet
-        localStorage.setItem("jwtToken", loginData.access_token);
+
+        // localStorage.setItem("jwtToken", loginData.access_token);
+        setLocalToken(tokenData.access_token);
+        console.log(tokenData.access_token, "access token");
+
         // Kullanıcı adını localStorage'e kaydet
-        localStorage.setItem("username", loginData.user_name);
+        // localStorage.setItem("username", loginData.user_name);
+        setLocalUserName(loginData.user_name);
 
         router.push("/", { scroll: false });
       } else {
@@ -85,59 +110,59 @@ const LoginPage: React.FC = () => {
   // Eğer kullanıcı zaten oturum açık değilse giriş formunu göster
   if (!isAuthenticated) {
     return (
-      <div className="flex flex-col items-center justify-between py-4">
-        <h1 className="text-2xl font-bold mt-12 mb-8">
-          Kullanıcı Giriş Sayfası
-        </h1>
+      <div className="flex flex-col items-center justify-between py-4 mt-8">
+        <div className="flex flex-col px-8 py-4 items-center justify-center mt-8 bg-white bg-opacity-50 rounded-lg w-1/3">
+          <h1 className="text-3xl font-bold mb-8">GİRİŞ YAP</h1>
 
-        {error && <p className="text-red-500">{error}</p>}
+          {error && <p className="text-red-500">{error}</p>}
 
-        <form onSubmit={handleSubmit} className="w-1/4 mx-auto">
-          <div className="mb-4">
-            <label
-              htmlFor="username"
-              className="block text-sm font-medium text-gray-600"
-            >
-              Kullanıcı Adı
-            </label>
-            <input
-              type="text"
-              id="username"
-              name="username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              className="mt-1 p-2 w-full border rounded-md"
-              required
-            />
-          </div>
+          <form onSubmit={handleSubmit} className="w-full mx-auto">
+            <div className="mb-4">
+              <label
+                htmlFor="username"
+                className="block text-sm font-medium text-black"
+              >
+                Kullanıcı Adı
+              </label>
+              <input
+                type="text"
+                id="username"
+                name="username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className="mt-1 p-2 w-full border rounded-md"
+                required
+              />
+            </div>
 
-          <div className="mb-4">
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-600"
-            >
-              Şifre
-            </label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 p-2 w-full border rounded-md"
-              required
-            />
-          </div>
-          <div className="flex flex-col items-center gap-4">
-            <button
-              type="submit"
-              className="w-full bg-white text-black p-2 rounded-md hover:text-yellow-500"
-            >
-              Giriş Yap
-            </button>
-            <Link href={"/register"}>Üye değil misin? Kayıt ol!</Link>
-          </div>
-        </form>
+            <div className="mb-4">
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-black"
+              >
+                Şifre
+              </label>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="mt-1 p-2 w-full border rounded-md"
+                required
+              />
+            </div>
+            <div className="flex flex-col items-center gap-4">
+              <button
+                type="submit"
+                className="w-full bg-white text-black p-2 rounded-md hover:text-yellow-500"
+              >
+                Giriş Yap
+              </button>
+              <Link href={"/register"}>Üye değil misin? Kayıt ol!</Link>
+            </div>
+          </form>
+        </div>
       </div>
     );
   }
@@ -145,7 +170,7 @@ const LoginPage: React.FC = () => {
   // Eğer kullanıcı zaten oturum açık ise çıkış yap butonunu göster
   return (
     <div className="flex flex-col items-center justify-center py-4">
-      <p className="">Tekrar bekleriz. Bizi unutma🥲</p>
+      <p className="">Tekrar bekleriz. Bizi unutma {user}</p>
       <button
         onClick={handleLogout}
         className="w-1/6 bg-white text-black p-2 rounded-md hover:text-yellow-500"

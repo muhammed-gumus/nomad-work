@@ -6,11 +6,9 @@ import Link from "next/link";
 import Gmail from "../icons/gmail/page";
 import Twitter from "../icons/twitter/page";
 import Linkedin from "../icons/linkedin/page";
-import Navbar from "@/components/Navbar";
 
 const descText =
-  "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.";
-
+"Nomad Work, çalışma tarzınızı özgürleştiren yenilikçi bir sosyal medya platformudur. Çeşitli çalışma mekanlarını keşfetme fırsatı sunarak, her anınızı en verimli şekilde geçirmenizi sağlar. Sizden gelen değerlendirmeleri, yapay zeka destekli analiz ile puanlayarak, size en uygun mekanları önerir. Nomad Work sayesinde paylaşımlı ofislerden kafelere, özel ofislerden benzersiz çalışma alanlarına kadar geniş bir seçenek yelpazesi arasında dolaşabilir ve çalışma deneyiminizi kişiselleştirebilirsiniz. Çalışma dünyasını keşfedin, değerlendirin ve paylaşın;  "
 const teamMembers = [
   {
     id: 1,
@@ -18,6 +16,9 @@ const teamMembers = [
     title: "CEO",
     photo: "/images/mami.jpeg",
     desc: "Ben Muhammed. Bilgisayar Mühendisliği 4. sınıf öğrencisiyim. Architecht'te Software Engineer olarak çalışıyorum. Boş zamanlarımda open-source projelere katkıda bulunup topluluklarda aktif olarak rol alıyorum.",
+    twitter: "https://twitter.com/devmamidev",
+    linkedin: "https://www.linkedin.com/in/muhammedgums",
+    mail: "mailto:mgumus4102@gmail.com",
   },
   {
     id: 2,
@@ -25,13 +26,19 @@ const teamMembers = [
     title: "Software Engineer",
     photo: "/images/keles.png",
     desc: "Ben Alperen. Birçok ilgi alanım var. ODTÜ CENG mezunuyum, şu anda UMD CS'de Leonidas Lampropoulos'un danışmanlığında üçüncü sınıf doktora öğrencisiyim. Özellik Tabanlı Test ve Biçimsel Doğrulama üzerine araştırmalar yapıyorum, kişisel blogumda yazmayı seviyorum.",
+    twitter: "https://twitter.com/keleesssss",
+    linkedin: "https://www.linkedin.com/in/alpkeles",
+    mail: "mailto:akeles@umd.edu",
   },
   {
     id: 3,
     name: "Umut Şirin",
     title: "CTO",
     photo: "/images/usirin.png",
-    desc: "Ben Umut. Discord'da Staff Full Stack Engineer olarak çalışıyorum. kampus isimli bir discord sunucum var ve burada Türkçe yazılım içerikleri üretiyor, insanlarla birlikte projeler geliştiriyorum.",
+    desc: "Ben Umut. Discord'da Senior design systems & accessibility engineer olarak çalışıyorum. kampus isimli bir discord sunucum var ve burada Türkçe yazılım içerikleri üretiyor, insanlarla birlikte projeler geliştiriyorum.",
+    twitter: "https://twitter.com/usirin",
+    linkedin: "https://www.linkedin.com/in/usirin/",
+    mail: "mailto:umutsirin1@gmail.com",
   },
   {
     id: 4,
@@ -39,6 +46,9 @@ const teamMembers = [
     title: "Software Engineer",
     photo: "/images/can.jpeg",
     desc: "Ben Can. ServiceNow'da Software Engineer olarak çalışıyorum. Ürün problemlerini teknik çözümlerle ele almayı seven bir yazılım mühendisiyim, öğrenmekten asla vazgeçmeyen ve bilgisini çevresiyle paylaşmayı seven bir takım oyuncusuyum.",
+    twitter: "https://twitter.com/csirin_",
+    linkedin: "https://www.linkedin.com/in/can-sirin-web/",
+    mail: "mailto:cansirin12@gmail.com",
   },
   // Add more team members as needed
 ];
@@ -57,11 +67,11 @@ const Page: React.FC = () => {
     <div className="flex flex-col items-center justify-between py-4">
       <div className="flex flex-col md:flex-row items-center justify-center my-12 mx-4 md:mx-12">
         <div className="md:w-1/2 md:mr-6 md:flex flex flex-col gap-2 items-start">
-          <p className="text-5xl font-bold mb-4">ABOUT US</p>
-          <p className="mb-4">{descText}</p>
+          <p className="text-5xl font-bold mb-4">HAKKIMIZDA</p>
+          <p className="mb-4">{descText}<span className="font-bold italic">Nomad Work ile çalışma tarzınızı belirleyin!</span></p>
           <Link href="#our-team">
             <button className="flex flex-row gap-3 items-center justify-center text-white px-6 py-3 rounded-lg text-xl bg-black transition duration-300 hover:text-yellow-500 hover:bg-white mb-6 md:mb-0">
-              OUR TEAM
+              TAKIMIMIZ
               <svg
                 width="32"
                 height="32"
@@ -161,33 +171,38 @@ const Page: React.FC = () => {
         id="our-team"
         className="flex flex-col items-center justify-center mt-12"
       >
-        <p className="text-4xl font-bold">OUR TEAM</p>
+        <p className="text-4xl font-bold">TAKIMIMIZ</p>
         <div className="grid grid-cols-4 w-full items-start justify-center gap-4 px-8 mt-8 mb-10">
           {/* Team cards */}
-        {teamMembers.map((member) => (
-          <div
-            key={member.id}
-            className="bg-white w-full px-4 py-4 flex justify-center items-center flex-col rounded-lg"
-          >
-            
-            <img
-              className="rounded-full object-cover py-2 px-2 w-2/3 "
-              src={member.photo}
-            />
-            <p className="text-2xl font-bold mb-2">{member.name}</p>
-            <p className="text-l italic mb-2">{member.title}</p>
-            <p className="text-md opacity-70 text-center line-clamp-5 hover:line-clamp-none transition delay-150 duration-300 hover:delay-300">
-              {member.desc}
-            </p>
-            <div className="flex justify-center">
-              <div className="flex flex-row gap-4 mt-2">
-                <Twitter />
-                <Linkedin />
-                <Gmail />
+          {teamMembers.map((member) => (
+            <div
+              key={member.id}
+              className="bg-white w-full px-4 py-4 flex justify-center items-center flex-col rounded-lg"
+            >
+              <img
+                className="rounded-full object-cover py-2 px-2 w-2/3 "
+                src={member.photo}
+              />
+              <p className="text-2xl font-bold mb-2">{member.name}</p>
+              <p className="text-l italic mb-2">{member.title}</p>
+              <p className="text-md opacity-70 text-center line-clamp-5 hover:line-clamp-none transition delay-150 duration-300 hover:delay-300">
+                {member.desc}
+              </p>
+              <div className="flex justify-center">
+                <div className="flex flex-row gap-4 mt-2">
+                  <Link href={member.twitter}>
+                    <Twitter />
+                  </Link>
+                  <Link href={member.linkedin}>
+                    <Linkedin />
+                  </Link>
+                  <Link href={member.mail}>
+                    <Gmail />
+                  </Link>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))}
         </div>
       </div>
     </div>

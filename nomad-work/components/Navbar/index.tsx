@@ -9,18 +9,16 @@ const Navbar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [loggedInUsername, setLoggedInUsername] = useState("");
 
-  const [value] = useLocalStorage("jwtToken", null);
-  const [nameControl,] = useLocalStorage("username", null) 
-  console.log(value);
-  console.log(nameControl)
-  
+  // const [value] = useLocalStorage("jwtToken", null);
+  const [username] = useLocalStorage("username", "");
 
   useEffect(() => {
     // Kullanıcı girişi durumuna göre localStorage'den kullanıcı adını al
-    if (value && nameControl) {
-      setLoggedInUsername(localStorage.getItem("username") || "");
+    console.log(username, "username");
+    if (username) {
+      setLoggedInUsername(username);
     }
-  }, [value, nameControl]);
+  }, [username]);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -49,7 +47,10 @@ const Navbar: React.FC = () => {
       {/* Logo */}
       <div className="text-2xl font-bold hidden md:block">
         <Link href="/">
-          <img src="images/logo.jpeg" className="cursor-pointer w-20 rounded-full"/>
+          <img
+            src="images/logo.jpeg"
+            className="cursor-pointer w-20 rounded-full"
+          />
         </Link>
       </div>
 
@@ -85,18 +86,13 @@ const Navbar: React.FC = () => {
 
       {/* Menü Öğeleri (Büyük Ekranlar İçin) */}
       <div className="hidden md:flex space-x-8 list-none">
-        {value ? (
+        {loggedInUsername ? (
           // Kullanıcı giriş yaptıysa, kullanıcının adını göster
           <div className="flex items-center">
+            <MenuItem href="/About" text="Hakkımızda" />
+            <MenuItem href="/discover" text="Keşfet" />
+            <MenuItem href="/Contact" text="İletişim" />
             <span className="mr-2 cursor-pointer">{loggedInUsername}</span>
-            <Image
-              src="/avatar.jpg" // Eklediğiniz avatar görselinin yolu
-              alt="Avatar"
-              width={32}
-              height={32}
-              className="rounded-full"
-            />
-            <span className="ml-2 cursor-pointer">Profil</span>
           </div>
         ) : (
           // Kullanıcı giriş yapmadıysa login/register linklerini göster

@@ -4,7 +4,7 @@ import Link from "next/link";
 const titleText1 = "Nomad"; // Kullanmak istediğiniz özel metin
 const titleText2 = "Work";
 const descText =
-  "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation "; // Kullanmak istediğiniz özel metin
+  "Nomad Work ile en iyi çalışma mekanlarını keşfedin, değerlendirin ve yapay zeka destekli puanlamalarla seçiminizi yapın. Çalışma tarzınızı özgürleştirin!"; // Kullanmak istediğiniz özel metin
 
 const customImageUrl = "images/banner.jpg"; // Kullanmak istediğiniz özel görsel URL
 
@@ -22,7 +22,7 @@ const Banner: React.FC = () => {
 
         <Link href={"/discover/"}>
           <button className="text-white px-10 py-3 rounded-lg text-xl bg-black transition duration-300 hover:text-yellow-500 hover:bg-white mb-6 md:mb-0">
-            Discover
+            Keşfet
           </button>
         </Link>
       </div>

@@ -12,6 +12,8 @@ import requests
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from config import MONGO_URI, GMAIL_SENDER_EMAIL, GMAIL_SENDER_PASSWORD
+from typing import Union
+
 # MongoDB connections
 myclient = MongoClient(
     "mongodb+srv://muhammed-gumus:Mami040953@muhammedgumus.80fpuqf.mongodb.net/?retryWrites=true&w=majority")
@@ -106,6 +108,18 @@ def login(user_info: dict):
     return {"message": "Kullanıcı adı veya şifre hatalı"}
 
 # Get JWT token for authentication
+
+
+def create_jwt_token(data: dict, expires_delta: Union[timedelta, None] = None):
+
+    to_encode = data.copy()
+    if expires_delta:
+        expire = datetime.utcnow() + expires_delta
+    else:
+        expire = datetime.utcnow() + timedelta(minutes=15)
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt
 
 
 @app.post("/token")

@@ -54,9 +54,9 @@ const ContactPage: React.FC = () => {
           <h2 className="text-3xl font-bold mb-4 underline">
             İletişim Bilgileri
           </h2>
-          <p>Adres: Lorem Ipsum Cad. No:123, 34567 Şehir, Ülke</p>
-          <p>Telefon: (123) 456-7890</p>
-          <p>E-posta: info@example.com</p>
+          <p>Adres: Ardıçlı Mah. Rauf Orbay Cad. 42250, Selçuklu/KONYA</p>
+          <p>Telefon: 0(332) 205 15 00</p>
+          <p>E-posta: muhendislik@ktun.edu.tr</p>
 
           <h2 className="text-3xl font-bold my-4 underline">İletişim Formu</h2>
           <form onSubmit={handleSubmit} className="flex flex-col gap-2">

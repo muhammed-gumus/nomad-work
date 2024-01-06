@@ -21,7 +21,7 @@ const Page: React.FC = () => {
             } transition-all duration-300 ease-in-out`}
             onClick={() => setSelectedCategory("Cafe")}
           >
-            Cafe
+            Kafe
           </button>
           <button
             className={`${
@@ -31,7 +31,7 @@ const Page: React.FC = () => {
             } transition-all duration-300 ease-in-out`}
             onClick={() => setSelectedCategory("Restaurant")}
           >
-            Restaurant
+            Restoran
           </button>
           {/* <button
             className={`${
@@ -51,7 +51,7 @@ const Page: React.FC = () => {
             } transition-all duration-300 ease-in-out`}
             onClick={() => setSelectedCategory("Library")}
           >
-            Library
+            Kütüphane
           </button>
         </div>
 
