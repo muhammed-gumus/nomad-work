@@ -15,13 +15,13 @@ const LoginPage: React.FC = () => {
   const router = useRouter();
 
   useEffect(() => {
-    // Sayfa yüklendiğinde, eğer kullanıcı daha önce giriş yapmışsa otomatik olarak yönlendir
+    // Sayfa yüklendiğinde, eğer kullanıcı daha önce giriş yapmışsa otomatik olarak ana sayfaya yönlendir
     const jwtToken = localStorage.getItem("jwtToken");
     if (jwtToken) {
       // Burada gerçek bir authentication işlemi yapmanız gerekebilir (örneğin, token'ı doğrulamak)
+      const storedUsername = localStorage.getItem("username") || null;
       setIsAuthenticated(true);
-      setUser(localStorage.getItem("username") || null);
-      router.push("/", { scroll: false });
+      setUser(storedUsername);
     }
   }, []);
 
@@ -59,7 +59,7 @@ const LoginPage: React.FC = () => {
         // Kullanıcı adını localStorage'e kaydet
         localStorage.setItem("username", loginData.user_name);
 
-        loginRedirect(loginData.message);
+        router.push("/", { scroll: false });
       } else {
         setError("Kullanıcı adı veya şifre hatalı");
       }
@@ -69,67 +69,89 @@ const LoginPage: React.FC = () => {
     }
   };
 
-  const loginRedirect = (log: string) => {
-    if (log === "Giriş başarıyla gerçekleşti") {
-      console.log("Yönlendirme başarılı");
-      router.push("/", { scroll: false });
-    } else {
-      console.log("Yönlendirme başarılı değil");
-    }
+  const handleLogout = () => {
+    // Kullanıcının oturumunu sonlandır
+    setIsAuthenticated(false);
+    setUser(null);
+
+    // localStorage'deki ilgili bilgileri temizle
+    localStorage.removeItem("jwtToken");
+    localStorage.removeItem("username");
+
+    // İstediğiniz yönlendirmeyi yapabilirsiniz
+    router.push("/login", { scroll: false });
   };
 
+  // Eğer kullanıcı zaten oturum açık değilse giriş formunu göster
+  if (!isAuthenticated) {
+    return (
+      <div className="flex flex-col items-center justify-between py-4">
+        <h1 className="text-2xl font-bold mt-12 mb-8">
+          Kullanıcı Giriş Sayfası
+        </h1>
+
+        {error && <p className="text-red-500">{error}</p>}
+
+        <form onSubmit={handleSubmit} className="w-1/4 mx-auto">
+          <div className="mb-4">
+            <label
+              htmlFor="username"
+              className="block text-sm font-medium text-gray-600"
+            >
+              Kullanıcı Adı
+            </label>
+            <input
+              type="text"
+              id="username"
+              name="username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              className="mt-1 p-2 w-full border rounded-md"
+              required
+            />
+          </div>
+
+          <div className="mb-4">
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-gray-600"
+            >
+              Şifre
+            </label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="mt-1 p-2 w-full border rounded-md"
+              required
+            />
+          </div>
+          <div className="flex flex-col items-center gap-4">
+            <button
+              type="submit"
+              className="w-full bg-white text-black p-2 rounded-md hover:text-yellow-500"
+            >
+              Giriş Yap
+            </button>
+            <Link href={"/register"}>Üye değil misin? Kayıt ol!</Link>
+          </div>
+        </form>
+      </div>
+    );
+  }
+
+  // Eğer kullanıcı zaten oturum açık ise çıkış yap butonunu göster
   return (
-    <div className="flex flex-col items-center justify-between py-4">
-      <h1 className="text-2xl font-bold mt-12 mb-8">Kullanıcı Giriş Sayfası</h1>
-      {error && <p className="text-red-500">{error}</p>}
-      {user && <p className="text-green-500">Giriş başarıyla gerçekleşti</p>}
-
-      <form onSubmit={handleSubmit} className="w-1/4 mx-auto">
-        <div className="mb-4">
-          <label
-            htmlFor="username"
-            className="block text-sm font-medium text-gray-600"
-          >
-            Kullanıcı Adı
-          </label>
-          <input
-            type="text"
-            id="username"
-            name="username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            className="mt-1 p-2 w-full border rounded-md"
-            required
-          />
-        </div>
-
-        <div className="mb-4">
-          <label
-            htmlFor="password"
-            className="block text-sm font-medium text-gray-600"
-          >
-            Şifre
-          </label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="mt-1 p-2 w-full border rounded-md"
-            required
-          />
-        </div>
-        <div className="flex flex-col items-center gap-4">
-          <button
-            type="submit"
-            className="w-full bg-white text-black p-2 rounded-md hover:text-yellow-500"
-          >
-            Giriş Yap
-          </button>
-          <Link href={"/register"}>Üye değil misin? Kayıt ol!</Link>
-        </div>
-      </form>
+    <div className="flex flex-col items-center justify-center py-4">
+      <p className="">Tekrar bekleriz. Bizi unutma🥲</p>
+      <button
+        onClick={handleLogout}
+        className="w-1/6 bg-white text-black p-2 rounded-md hover:text-yellow-500"
+      >
+        Çıkış Yap
+      </button>
     </div>
   );
 };
