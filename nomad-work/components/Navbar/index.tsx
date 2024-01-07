@@ -75,7 +75,7 @@ const Navbar: React.FC = () => {
           >
             x
           </button>
-          <ul className="flex gap-4">
+          <ul className="flex gap-2">
             <MenuItem href="/About" text="Hakkımızda" />
             <MenuItem href="/discover" text="Keşfet" />
             <MenuItem href="/Contact" text="İletişim" />
@@ -85,23 +85,23 @@ const Navbar: React.FC = () => {
       )}
 
       {/* Menü Öğeleri (Büyük Ekranlar İçin) */}
-      <div className="hidden md:flex space-x-8 list-none">
+      <div className="hidden md:flex space-x-4 list-none items-center">
         {loggedInUsername ? (
           // Kullanıcı giriş yaptıysa, kullanıcının adını göster
-          <div className="flex items-center">
+          <>
             <MenuItem href="/About" text="Hakkımızda" />
             <MenuItem href="/discover" text="Keşfet" />
             <MenuItem href="/Contact" text="İletişim" />
-            <span className="mr-2 cursor-pointer">{loggedInUsername}</span>
-          </div>
+            <MenuItem href="/login" text="Çıkış Yap" />
+          </>
         ) : (
           // Kullanıcı giriş yapmadıysa login/register linklerini göster
-          <div className="flex space-x-4">
+          <>
             <MenuItem href="/About" text="Hakkımızda" />
             <MenuItem href="/discover" text="Keşfet" />
             <MenuItem href="/Contact" text="İletişim" />
             <MenuItem href="/register" text="Giriş Yap/Kayıt Ol" />
-          </div>
+          </>
         )}
       </div>
     </nav>

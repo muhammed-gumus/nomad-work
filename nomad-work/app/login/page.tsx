@@ -17,6 +17,10 @@ const LoginPage: React.FC = () => {
   const router = useRouter();
   const [localUserName, setLocalUserName] = useLocalStorage("username", null);
   const [localToken, setLocalToken] = useLocalStorage("jwtToken", null);
+  const [isModalConfirmed, setIsModalConfirmed] = useLocalStorage(
+    "isModalConfirmed",
+    true
+  );
 
   useEffect(() => {
     // Sayfa yüklendiğinde, eğer kullanıcı daha önce giriş yapmışsa otomatik olarak ana sayfaya yönlendir
@@ -103,8 +107,14 @@ const LoginPage: React.FC = () => {
     localStorage.removeItem("jwtToken");
     localStorage.removeItem("username");
 
+    // localStorage'daki isModalConfirmed değişkenini false olarak güncelle
+    setIsModalConfirmed(false);
+
     // İstediğiniz yönlendirmeyi yapabilirsiniz
     router.push("/login", { scroll: false });
+
+    // Sayfa yönlendikten sonra eğer sayfayı refresh etmek istiyorsanız
+    window.location.reload();
   };
 
   // Eğer kullanıcı zaten oturum açık değilse giriş formunu göster
@@ -169,14 +179,19 @@ const LoginPage: React.FC = () => {
 
   // Eğer kullanıcı zaten oturum açık ise çıkış yap butonunu göster
   return (
-    <div className="flex flex-col items-center justify-center py-4">
-      <p className="">Tekrar bekleriz. Bizi unutma {user}</p>
-      <button
-        onClick={handleLogout}
-        className="w-1/6 bg-white text-black p-2 rounded-md hover:text-yellow-500"
-      >
-        Çıkış Yap
-      </button>
+    <div className="flex flex-col items-center justify-center py-4 mt-8">
+      <div className="flex flex-col px-8 py-6 items-center justify-center mt-8 bg-white bg-opacity-50 gap-4 rounded-lg w-2/5">
+        <p className="text-xl">
+          Bizi unutma <span className="font-bold italic">{user}</span>. Tekrar
+          görüşmek üzere...{" "}
+        </p>
+        <button
+          onClick={handleLogout}
+          className="w-1/2 bg-white text-black px-4 py-2 rounded-md hover:text-yellow-500"
+        >
+          Çıkış Yap
+        </button>
+      </div>
     </div>
   );
 };
