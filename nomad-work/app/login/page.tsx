@@ -111,7 +111,7 @@ const LoginPage: React.FC = () => {
     setIsModalConfirmed(false);
 
     // İstediğiniz yönlendirmeyi yapabilirsiniz
-    router.push("/login", { scroll: false });
+    router.push("/Login", { scroll: false });
 
     // Sayfa yönlendikten sonra eğer sayfayı refresh etmek istiyorsanız
     window.location.reload();
@@ -169,7 +169,7 @@ const LoginPage: React.FC = () => {
               >
                 Giriş Yap
               </button>
-              <Link href={"/register"}>Üye değil misin? Kayıt ol!</Link>
+              <Link href={"/Register"}>Üye değil misin? Kayıt ol!</Link>
             </div>
           </form>
         </div>

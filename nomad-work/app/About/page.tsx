@@ -3,9 +3,9 @@
 "use client";
 import React, { useState } from "react";
 import Link from "next/link";
-import Gmail from "../icons/gmail/page";
-import Twitter from "../icons/twitter/page";
-import Linkedin from "../icons/linkedin/page";
+import Gmail from "../Icons/gmail/page";
+import Twitter from "../Icons/twitter/page";
+import Linkedin from "../Icons/linkedin/page";
 
 const descText =
 "Nomad Work, çalışma tarzınızı özgürleştiren yenilikçi bir sosyal medya platformudur. Çeşitli çalışma mekanlarını keşfetme fırsatı sunarak, her anınızı en verimli şekilde geçirmenizi sağlar. Sizden gelen değerlendirmeleri, yapay zeka destekli analiz ile puanlayarak, size en uygun mekanları önerir. Nomad Work sayesinde paylaşımlı ofislerden kafelere, özel ofislerden benzersiz çalışma alanlarına kadar geniş bir seçenek yelpazesi arasında dolaşabilir ve çalışma deneyiminizi kişiselleştirebilirsiniz. Çalışma dünyasını keşfedin, değerlendirin ve paylaşın;  "

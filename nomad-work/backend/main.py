@@ -72,8 +72,26 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
     return username
 
 
+def check_existing_user(email: str, username: str):
+    collection = db2["User"]
+    existing_email = collection.find_one({"email": email})
+    existing_username = collection.find_one({"username": username})
+
+    if existing_email or existing_username:
+        return True  # User already exists
+    else:
+        return False
+
+# User registration endpoint
+
+
 @app.post("/register")
 def add_user(user: dict):
+    # Check if the email or username already exists
+    if check_existing_user(user["email"], user["username"]):
+        raise HTTPException(
+            status_code=400, detail="Email or username already exists")
+
     # Şifreyi depolamadan önce hashle
     hashed_password = pwd_context.hash(user["password"])
     user["password"] = hashed_password

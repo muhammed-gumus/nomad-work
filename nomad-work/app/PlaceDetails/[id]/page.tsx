@@ -429,7 +429,8 @@ const Page: React.FC<PageProps> = ({ params }) => {
               className="w-full bg-white w-2/3 py-2 px-4 rounded-lg"
               key={index}
             >
-              {comment.username} - {comment.comment}
+              <p className="font-bold">{comment.username}</p>
+              <p>{comment.comment}</p>
             </li>
           ))}
         </ul>
@@ -440,7 +441,7 @@ const Page: React.FC<PageProps> = ({ params }) => {
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
             placeholder="Yorumunuzu buraya yazın..."
-            className="border p-2 w-full rounded-lg"
+            className="border p-4 w-full rounded-lg"
           />
           <button
             onClick={handleSubmitComment}

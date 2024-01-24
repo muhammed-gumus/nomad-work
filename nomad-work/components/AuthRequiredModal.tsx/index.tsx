@@ -14,7 +14,7 @@ const AuthRequiredModal: React.FC<AuthRequiredModalProps> = ({
   const router = useRouter();
 
   const handleRedirect = () => {
-    router.push("/login"); // Kullanıcıyı login sayfasına yönlendir
+    router.push("/Login"); // Kullanıcıyı login sayfasına yönlendir
   };
 
   return (

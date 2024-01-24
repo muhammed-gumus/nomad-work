@@ -2,23 +2,19 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import Image from "next/image";
-import useLocalStorage from "@/useLocalStorage";
 
 const Navbar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [loggedInUsername, setLoggedInUsername] = useState("");
 
-  // const [value] = useLocalStorage("jwtToken", null);
-  const [username] = useLocalStorage("username", "");
-
   useEffect(() => {
     // Kullanıcı girişi durumuna göre localStorage'den kullanıcı adını al
+    const username = localStorage.getItem("username");
     console.log(username, "username");
     if (username) {
       setLoggedInUsername(username);
     }
-  }, [username]);
+  }, []);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -77,9 +73,9 @@ const Navbar: React.FC = () => {
           </button>
           <ul className="flex gap-2">
             <MenuItem href="/About" text="Hakkımızda" />
-            <MenuItem href="/discover" text="Keşfet" />
+            <MenuItem href="/Discover" text="Keşfet" />
             <MenuItem href="/Contact" text="İletişim" />
-            <MenuItem href="/register" text="Giriş Yap/Kayıt Ol" />
+            <MenuItem href="/Register" text="Giriş Yap/Kayıt Ol" />
           </ul>
         </div>
       )}
@@ -90,23 +86,25 @@ const Navbar: React.FC = () => {
           // Kullanıcı giriş yaptıysa, kullanıcının adını göster
           <>
             <MenuItem href="/About" text="Hakkımızda" />
-            <MenuItem href="/discover" text="Keşfet" />
+            <MenuItem href="/Discover" text="Keşfet" />
             <MenuItem href="/Contact" text="İletişim" />
-            <MenuItem href="/login" text="Çıkış Yap" />
+            <MenuItem href="/Login" text="Çıkış Yap" />
           </>
         ) : (
           // Kullanıcı giriş yapmadıysa login/register linklerini göster
           <>
             <MenuItem href="/About" text="Hakkımızda" />
-            <MenuItem href="/discover" text="Keşfet" />
+            <MenuItem href="/Discover" text="Keşfet" />
             <MenuItem href="/Contact" text="İletişim" />
-            <MenuItem href="/register" text="Giriş Yap/Kayıt Ol" />
+            <MenuItem href="/Register" text="Giriş Yap/Kayıt Ol" />
           </>
         )}
       </div>
     </nav>
   );
 };
+
+// ... (rest of the code remains the same)
 
 interface MenuItemProps {
   href: string;
