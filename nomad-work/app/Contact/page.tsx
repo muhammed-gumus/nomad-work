@@ -1,9 +1,11 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Map from "../../components/Maps";
 import Navbar from "@/components/Navbar";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import AuthModal from "@/components/AuthModal";
+import AuthRequiredModal from "@/components/AuthRequiredModal.tsx";
 
 const descText =
   "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."; // Kullanmak istediğiniz özel metin
@@ -17,8 +19,43 @@ const ContactPage: React.FC = () => {
     text: "",
   });
 
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isAuthRequiredModalOpen, setIsAuthRequiredModalOpen] = useState(false);
+
+  useEffect(() => {
+    // localStorage'dan jwtToken ve username kontrolü yap
+    const jwtToken = localStorage.getItem("jwtToken");
+    const storedUsername = localStorage.getItem("username");
+
+    if (jwtToken && storedUsername) {
+      setIsAuthenticated(true);
+      setIsAuthModalOpen(true);
+    } else {
+      setIsAuthRequiredModalOpen(true);
+    }
+  }, []);
+
+  const handleAuthModalClose = () => {
+    setIsAuthModalOpen(false);
+  };
+
+  const handleAuthRequiredModalClose = () => {
+    setIsAuthRequiredModalOpen(false);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Kullanıcı adını localStorage'dan al
+    const storedUsername = localStorage.getItem("username");
+
+    // Kullanıcı adı kontrolü yap
+    if (formData.username !== storedUsername) {
+      // Kullanıcı adı hatalı ise toast ile hata mesajını göster
+      toast.error("Kullanıcı adı hatalı!");
+      return;
+    }
 
     try {
       const response = await fetch("http://127.0.0.1:8000/send-email", {
@@ -49,6 +86,15 @@ const ContactPage: React.FC = () => {
 
   return (
     <div className="flex flex-col items-center justify-between py-4">
+      {isAuthenticated && (
+        <AuthModal isOpen={isAuthModalOpen} onClose={handleAuthModalClose} />
+      )}
+      {!isAuthenticated && (
+        <AuthRequiredModal
+          isOpen={isAuthRequiredModalOpen}
+          onClose={handleAuthRequiredModalClose}
+        />
+      )}
       <div className="flex w-4/5 items-center justify-between md:flex-row flex-col gap-8 my-12 mx-4 md:mx-12">
         <div className="md:w-1/2 md:mr-6 md:flex flex flex-col items-start">
           <h2 className="text-3xl font-bold mb-4 underline">

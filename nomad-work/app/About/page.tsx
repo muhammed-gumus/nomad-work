@@ -6,9 +6,12 @@ import Link from "next/link";
 import Gmail from "../Icons/gmail/page";
 import Twitter from "../Icons/twitter/page";
 import Linkedin from "../Icons/linkedin/page";
+import { useEffect } from "react";
+import AuthModal from "@/components/AuthModal";
+import AuthRequiredModal from "@/components/AuthRequiredModal.tsx";
 
 const descText =
-"Nomad Work, çalışma tarzınızı özgürleştiren yenilikçi bir sosyal medya platformudur. Çeşitli çalışma mekanlarını keşfetme fırsatı sunarak, her anınızı en verimli şekilde geçirmenizi sağlar. Sizden gelen değerlendirmeleri, yapay zeka destekli analiz ile puanlayarak, size en uygun mekanları önerir. Nomad Work sayesinde paylaşımlı ofislerden kafelere, özel ofislerden benzersiz çalışma alanlarına kadar geniş bir seçenek yelpazesi arasında dolaşabilir ve çalışma deneyiminizi kişiselleştirebilirsiniz. Çalışma dünyasını keşfedin, değerlendirin ve paylaşın;  "
+  "Nomad Work, çalışma tarzınızı özgürleştiren yenilikçi bir sosyal medya platformudur. Çeşitli çalışma mekanlarını keşfetme fırsatı sunarak, her anınızı en verimli şekilde geçirmenizi sağlar. Sizden gelen değerlendirmeleri, yapay zeka destekli analiz ile puanlayarak, size en uygun mekanları önerir. Nomad Work sayesinde paylaşımlı ofislerden kafelere, özel ofislerden benzersiz çalışma alanlarına kadar geniş bir seçenek yelpazesi arasında dolaşabilir ve çalışma deneyiminizi kişiselleştirebilirsiniz. Çalışma dünyasını keşfedin, değerlendirin ve paylaşın;  ";
 const teamMembers = [
   {
     id: 1,
@@ -63,12 +66,50 @@ const truncateDesc = (desc: any) => {
 };
 
 const Page: React.FC = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isAuthRequiredModalOpen, setIsAuthRequiredModalOpen] = useState(false);
+
+  useEffect(() => {
+    // localStorage'dan jwtToken ve username kontrolü yap
+    const jwtToken = localStorage.getItem("jwtToken");
+    const username = localStorage.getItem("username");
+
+    if (jwtToken && username) {
+      setIsAuthenticated(true);
+      setIsAuthModalOpen(true);
+    } else {
+      setIsAuthRequiredModalOpen(true);
+    }
+  }, []); // Boş dependency array, useEffect'in sadece bir kez çalışmasını sağlar
+
+  const handleAuthModalClose = () => {
+    setIsAuthModalOpen(false);
+  };
+
+  const handleAuthRequiredModalClose = () => {
+    setIsAuthRequiredModalOpen(false);
+  };
   return (
     <div className="flex flex-col items-center justify-between py-4">
+      {isAuthenticated && (
+        <AuthModal isOpen={isAuthModalOpen} onClose={handleAuthModalClose} />
+      )}
+      {!isAuthenticated && (
+        <AuthRequiredModal
+          isOpen={isAuthRequiredModalOpen}
+          onClose={handleAuthRequiredModalClose}
+        />
+      )}
       <div className="flex flex-col md:flex-row items-center justify-center my-12 mx-4 md:mx-12">
         <div className="md:w-1/2 md:mr-6 md:flex flex flex-col gap-2 items-start">
           <p className="text-5xl font-bold mb-4">HAKKIMIZDA</p>
-          <p className="mb-4">{descText}<span className="font-bold italic">Nomad Work ile çalışma tarzınızı belirleyin!</span></p>
+          <p className="mb-4">
+            {descText}
+            <span className="font-bold italic">
+              Nomad Work ile çalışma tarzınızı belirleyin!
+            </span>
+          </p>
           <Link href="#our-team">
             <button className="flex flex-row gap-3 items-center justify-center text-white px-6 py-3 rounded-lg text-xl bg-black transition duration-300 hover:text-yellow-500 hover:bg-white mb-6 md:mb-0">
               TAKIMIMIZ

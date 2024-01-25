@@ -1,7 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import Banner from "@/components/Banner";
-import Navbar from "@/components/Navbar";
 import AuthModal from "@/components/AuthModal";
 import AuthRequiredModal from "@/components/AuthRequiredModal.tsx";
 

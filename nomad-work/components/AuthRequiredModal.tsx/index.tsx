@@ -12,6 +12,12 @@ const AuthRequiredModal: React.FC<AuthRequiredModalProps> = ({
   onClose,
 }) => {
   const router = useRouter();
+  const [zIndex, setZIndex] = React.useState<number>(-1);
+
+  React.useEffect(() => {
+    // isOpen durumuna bağlı olarak z-index değerini ayarla
+    setZIndex(isOpen ? 1 : -1);
+  }, [isOpen]);
 
   const handleRedirect = () => {
     router.push("/Login"); // Kullanıcıyı login sayfasına yönlendir
@@ -22,6 +28,7 @@ const AuthRequiredModal: React.FC<AuthRequiredModalProps> = ({
       className={`fixed inset-0 flex items-center justify-center ${
         isOpen ? "" : "hidden"
       }`}
+      style={{ zIndex }}
     >
       <div className="fixed inset-0 bg-black opacity-50"></div>
       <div className="bg-white p-12 flex flex-col items-center rounded-md z-10">

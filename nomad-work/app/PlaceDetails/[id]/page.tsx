@@ -430,7 +430,7 @@ const Page: React.FC<PageProps> = ({ params }) => {
               key={index}
             >
               <p className="font-bold">{comment.username}</p>
-              <p>{comment.comment}</p>
+              <p className="line-clamp-2 hover:line-clamp-none transition delay-150 duration-300 hover:delay-300">{comment.comment}</p>
             </li>
           ))}
         </ul>
