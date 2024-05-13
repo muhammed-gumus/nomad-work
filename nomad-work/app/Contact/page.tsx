@@ -50,33 +50,46 @@ const ContactPage: React.FC = () => {
     // Kullanıcı adını localStorage'dan al
     const storedUsername = localStorage.getItem("username");
 
+    console.log("Stored Username:", storedUsername);
+    console.log("Form Username:", formData.username);
+
+    // Remove quotation marks from storedUsername if present
+    const cleanedStoredUsername = storedUsername
+      ? storedUsername.replace(/"/g, "")
+      : "";
+
     // Kullanıcı adı kontrolü yap
-    if (formData.username !== storedUsername) {
-      // Kullanıcı adı hatalı ise toast ile hata mesajını göster
-      toast.error("Kullanıcı adı hatalı!");
-      return;
-    }
+    if (
+      cleanedStoredUsername &&
+      formData.username.trim().toLowerCase() ===
+        cleanedStoredUsername.trim().toLowerCase()
+    ) {
+      try {
+        const response = await fetch("http://127.0.0.1:8000/send-email", {
+          method: "POST",
+          mode: "cors",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
+        });
 
-    try {
-      const response = await fetch("http://127.0.0.1:8000/send-email", {
-        method: "POST",
-        mode: "cors",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
-
-      if (response.ok) {
-        console.log("E-posta gönderildi");
-        toast.success("Mesaj gönderildi");
-        // İsteğe bağlı: Gönderim başarılı olduysa kullanıcıyı başka bir sayfaya yönlendirebilirsiniz.
-      } else {
-        console.error("E-posta gönderme hatası:", response.statusText);
-        toast.error("Mesaj gönderilemedi"); // Display error toast
+        if (response.ok) {
+          console.log("E-posta gönderildi");
+          toast.success("Mesaj gönderildi");
+          // İsteğe bağlı: Gönderim başarılı olduysa kullanıcıyı başka bir sayfaya yönlendirebilirsiniz.
+        } else {
+          console.error("E-posta gönderme hatası:", response.statusText);
+          toast.error("Mesaj gönderilemedi"); // Display error toast
+        }
+      } catch (error) {
+        console.error("Bir hata oluştu:", error);
       }
-    } catch (error) {
-      console.error("Bir hata oluştu:", error);
+    } else {
+      // Kullanıcı adı hatalı ise buraya girecek
+      console.log("Kullanıcı adı hatalı!");
+      toast.error("Kullanıcı adı hatalı!");
+      // Optional: Show a different message or handle this case as needed
     }
   };
 

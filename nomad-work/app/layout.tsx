@@ -1,9 +1,8 @@
-
 import Navbar from "@/components/Navbar";
 import "./globals.css";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import { useEffect } from "react";
+import SessionManager from "@/components/SessionManager/page";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -17,24 +16,11 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-
-
-
-  // useEffect(() => {
-  //   const control = () => {
-  //     const jwtToken = localStorage.getItem("jwtToken");
-  //     if (jwtToken) {
-  //       return true;
-  //     } else {
-  //       return false;
-  //     }
-  //   };
-  // }, []);
-
   return (
     <html lang="en">
       <body className="bg-yellow-400">
-        <Navbar/>
+        <SessionManager />
+        <Navbar />
         {children}
       </body>
     </html>

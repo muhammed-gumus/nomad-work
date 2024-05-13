@@ -14,6 +14,22 @@ from email.mime.multipart import MIMEMultipart
 from config import MONGO_URI, GMAIL_SENDER_EMAIL, GMAIL_SENDER_PASSWORD
 from typing import Union
 
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.svm import LinearSVC
+from sklearn.pipeline import Pipeline
+from sklearn.model_selection import train_test_split
+
+import pandas as pd
+import nltk
+from nltk.tokenize import word_tokenize
+from nltk.corpus import stopwords
+from nltk.classify.scikitlearn import SklearnClassifier
+from sklearn.naive_bayes import MultinomialNB
+import random
+from googletrans import Translator
+import time
+
+
 # MongoDB connections
 myclient = MongoClient(
     "mongodb+srv://muhammed-gumus:Mami040953@muhammedgumus.80fpuqf.mongodb.net/?retryWrites=true&w=majority")
@@ -37,9 +53,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
 # Security
-SECRET_KEY = "your-secret-key"
+SECRET_KEY = "veryStrongKey!"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
@@ -71,7 +86,6 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
 
     return username
 
-
 def check_existing_user(email: str, username: str):
     collection = db2["User"]
     existing_email = collection.find_one({"email": email})
@@ -83,6 +97,55 @@ def check_existing_user(email: str, username: str):
         return False
 
 # User registration endpoint
+
+# Veri setini yükleme
+data = pd.read_csv('yorumlar.csv', usecols=['Review Text', 'Rating'])
+
+# Metin ön işleme fonksiyonu
+def preprocess_text(text):
+    # Küçük harfe dönüştürme
+    text = text.lower()
+    # Özel karakterleri temizleme
+    text = ''.join(char for char in text if char.isalnum() or char.isspace())
+    return text
+
+# Küçük bir veri örneği oluşturma
+data = data.sample(frac=0.1, random_state=42)
+
+# Metin ön işleme ve model oluşturma
+X = data['Review Text'].apply(preprocess_text)
+y = data['Rating']
+
+# Veri setini eğitim ve test setlerine ayırma
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Pipeline oluşturma
+pipeline = Pipeline([
+    ('vect', TfidfVectorizer(ngram_range=(1, 2))),
+    ('clf', LinearSVC())
+])
+
+# Modeli eğitme
+pipeline.fit(X_train, y_train)
+
+@app.post("/rating")
+def predict_rating(comment_data: dict):
+    try:
+        # Gelen dictionary içindeki "comment" anahtarından yorumu al
+        comment = comment_data.get("comment", "")
+        
+        # Yorumun önişlenmesi
+        preprocessed_comment = preprocess_text(comment)
+        
+        # Tahmin yapma
+        predicted_rating = pipeline.predict([preprocessed_comment])[0]
+        
+        # Tahmin edilen rating'i dictionary içine ekleyerek döndür
+        return {"predicted_rating": str(predicted_rating)}  # Tahmin edilen rating'i string olarak dönüştür
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 
 
 @app.post("/register")
@@ -162,9 +225,6 @@ def login_for_token(user_info: dict):
 # Example protected endpoint using JWT for authentication
 
 
-# ...
-
-
 @app.get("/comments")
 def get_comments():
     try:
@@ -182,17 +242,25 @@ def get_comments():
 
 @app.post("/comments")
 def add_comment(comment_data: dict):
-    comment = comment_data.get("comment", "")
-    username = comment_data.get("username", "")
-    place_name = comment_data.get("place_name", "")
-
-    # MongoDB'ye yorumu ekleyin
-    new_collection = db4["Comment"]
     try:
+        # Gelen dictionary içindeki "comment" anahtarından yorumu al
+        comment = comment_data.get("comment", "")
+        # Gelen dictionary içindeki "place_name" anahtarından yer ismini al
+        place_name = comment_data.get("place_name", "")
+        # Gelen dictionary içindeki "username" anahtarından kullanıcı adını al
+        username = comment_data.get("username", "")
+
+        # Tahmin edilen rating'i almak için rating endpointini çağır
+        predicted_rating_response = predict_rating(comment_data)
+        predicted_rating = predicted_rating_response.get("predicted_rating", None)
+
+        # MongoDB'ye yorumu ve ratingi ekleyin
+        new_collection = db4["Comment"]
         result = new_collection.insert_one({
             "place_name": place_name,
             "username": username,
             "comment": comment,
+            "rating": predicted_rating,  # Tahmin edilen rating'i kaydet
             "timestamp": datetime.utcnow()
         })
 
@@ -202,10 +270,6 @@ def add_comment(comment_data: dict):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-
-@app.get("/users", response_model=dict)
-def get_users(current_user: str = Depends(get_current_user)):
-    return {"user_id": current_user}
 
 
 @app.get("/cafe")
@@ -286,6 +350,199 @@ def send_user_email(user_info: dict):
         return {"user_name": user_name, "user_id": user_id}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+# ...
+
+
+# @app.post("/comments")
+# def add_comment(comment_data: dict):
+#     comment = comment_data.get("comment", "")
+#     username = comment_data.get("username", "")
+#     place_name = comment_data.get("place_name", "")
+
+#     # MongoDB'ye yorumu ekleyin
+#     new_collection = db4["Comment"]
+#     try:
+#         result = new_collection.insert_one({
+#             "place_name": place_name,
+#             "username": username,
+#             "comment": comment,
+#             "timestamp": datetime.utcnow()
+#         })
+
+#         comment_id = str(result.inserted_id)
+#         print(f"Yorum Başarıyla Kaydedildi: {comment}")
+#         return {"comment_id": comment_id}
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail=str(e))
+
+
+
+
+# # Yorumları kaydetmek için yeni endpoint
+
+
+# @app.get("/comments")
+# def get_comments():
+#     try:
+#         # MongoDB'den tüm yorumları al
+#         comments_collection = db4["Comment"]
+#         comments = comments_collection.find({}, {"_id": 0})
+
+#         # Yorumları liste halinde döndür
+#         return list(comments)
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail=str(e))
+
+# # Yorumları kaydetmek için yeni endpoint
+
+
+# # Kelimeleri ayıklama ve temizleme için NLTK'nin İngilizce durdurma kelimelerini kullanma
+# def preprocess_text(text):
+#     stop_words = set(stopwords.words('english'))
+#     words = word_tokenize(text)
+#     return [word.lower() for word in words if word.isalpha() and word.lower() not in stop_words]
+
+
+# # Modeli eğitme
+# def train_classifier():
+#     data = pd.read_csv('yorumlar.csv')
+
+#     documents = [(preprocess_text(row['Review Text']), row['Rating'])
+#                  for _, row in data.iterrows()]
+#     random.shuffle(documents)
+
+#     all_words = nltk.FreqDist(
+#         [word for (words, _) in documents for word in words])
+#     word_features = list(all_words.keys())[:2000]
+
+#     def document_features(document):
+#         document_words = set(document)
+#         features = {}
+#         for word in word_features:
+#             features[f'contains({word})'] = (word in document_words)
+#         return features
+
+#     featuresets = [(document_features(d), c) for (d, c) in documents]
+
+#     classifier = SklearnClassifier(MultinomialNB())
+#     classifier.train(featuresets)
+
+#     return classifier
+
+
+# classifier = train_classifier()
+
+
+# @app.post("/comments")
+# def add_comment(comment_data: dict):
+#     comment = comment_data.get("comment", "")
+#     username = comment_data.get("username", "")
+#     place_name = comment_data.get("place_name", "")
+#     print(comment, "orjin yorum")
+#     print(type(comment))
+
+#     try:
+#         # Yorumu işleme
+#         translated_comment = Translator().translate(comment, dest='en').text
+#         preprocessed_comment = preprocess_text(translated_comment)
+#         features = document_features(preprocessed_comment)
+#         predicted_rating = classifier.classify(features)
+#         print(predicted_rating, "rate")
+
+#         # MongoDB'ye yorumu ekleme
+#         new_collection = db4["Comment"]
+#         result = new_collection.insert_one({
+#             "place_name": place_name,
+#             "username": username,
+#             "comment": comment,
+#             "predicted_rating": predicted_rating,
+#             "timestamp": datetime.utcnow()
+#         })
+
+#         comment_id = str(result.inserted_id)
+#         print(f"Yorum Başarıyla Kaydedildi: {comment}")
+#         return {"comment_id": comment_id}
+#     except Exception as e:
+#         print(f"Yorum ekleme hatası: {e}")  # Hata detayını konsola yazdır
+#         raise HTTPException(
+#             status_code=500, detail="Yorum ekleme işlemi sırasında bir hata oluştu")
+#     finally:
+#         # Her istek arasında 2 saniye bekleyin
+#         time.sleep(2)
+
+
+# @app.post("/comments")
+# def add_comment(comment_data: dict):
+#     comment = comment_data.get("comment", "")
+#     username = comment_data.get("username", "")
+#     place_name = comment_data.get("place_name", "")
+
+#     # MongoDB'ye yorumu ekleyin
+#     new_collection = db4["Comment"]
+#     try:
+#         result = new_collection.insert_one({
+#             "place_name": place_name,
+#             "username": username,
+#             "comment": comment,
+#             "timestamp": datetime.utcnow()
+#         })
+
+#         comment_id = str(result.inserted_id)
+#         print(f"Yorum Başarıyla Kaydedildi: {comment}")
+#         return {"comment_id": comment_id}
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail=str(e))
+
+
+###############################################
+###################    AI    ##################
+###############################################
+
+# # Veri setini yükleme
+# data = pd.read_csv('yorumlar.csv')
+
+# # Kelimeleri ayıklama ve temizleme
+# stop_words = set(stopwords.words('english'))
+
+# def preprocess_text(text):
+#     words = word_tokenize(text)
+#     return [word.lower() for word in words if word.isalpha() and word.lower() not in stop_words]
+
+# # Veri setini işleme
+# documents = [(preprocess_text(row['Review Text']), row['Rating']) for _, row in data.iterrows()]
+# random.shuffle(documents)
+
+# # Öznitelik çıkarma
+# all_words = nltk.FreqDist([word for (words, _) in documents for word in words])
+# word_features = list(all_words.keys())[:2000]
+
+# def document_features(document):
+#     document_words = set(document)
+#     features = {}
+#     for word in word_features:
+#         features[f'contains({word})'] = (word in document_words)
+#     return features
+
+# featuresets = [(document_features(d), c) for (d,c) in documents]
+
+# # Modeli eğitme
+# classifier = SklearnClassifier(MultinomialNB())
+# classifier.train(featuresets)
+
+# # Kullanıcıdan yorum isteme ve çeviri yapma
+# user_comment = input("Yorumunuzu girin: ")
+
+# translator = Translator()
+# translated_comment = translator.translate(user_comment, dest='en').text
+
+# preprocessed_comment = preprocess_text(translated_comment)
+# features = document_features(preprocessed_comment)
+# predicted_rating = classifier.classify(features)
+
+# # Tahmin edilen puanı ekrana yazdırma
+# print("Yaptığınız yorum için tahmini puan:", predicted_rating)
 
 
 # # Endpoint isimleri ve bölge koordinatları

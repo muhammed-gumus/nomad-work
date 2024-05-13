@@ -10,11 +10,25 @@ const Navbar: React.FC = () => {
   useEffect(() => {
     // Kullanıcı girişi durumuna göre localStorage'den kullanıcı adını al
     const username = localStorage.getItem("username");
-    console.log(username, "username");
     if (username) {
       setLoggedInUsername(username);
     }
   }, []);
+
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const username = localStorage.getItem("username");
+      if (username !== loggedInUsername) {
+        setLoggedInUsername(username || "");
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+    };
+  }, [loggedInUsername]);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -75,7 +89,11 @@ const Navbar: React.FC = () => {
             <MenuItem href="/About" text="Hakkımızda" />
             <MenuItem href="/Discover" text="Keşfet" />
             <MenuItem href="/Contact" text="İletişim" />
-            <MenuItem href="/Register" text="Giriş Yap/Kayıt Ol" />
+            {loggedInUsername ? (
+              <MenuItem href="/Login" text="Çıkış Yap" />
+            ) : (
+              <MenuItem href="/Register" text="Giriş Yap/Kayıt Ol" />
+            )}
           </ul>
         </div>
       )}
@@ -103,8 +121,6 @@ const Navbar: React.FC = () => {
     </nav>
   );
 };
-
-// ... (rest of the code remains the same)
 
 interface MenuItemProps {
   href: string;

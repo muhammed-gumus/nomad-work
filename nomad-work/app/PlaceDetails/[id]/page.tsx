@@ -7,6 +7,15 @@ import Navbar from "@/components/Navbar";
 import Modal from "@/components/ImageModal";
 import Link from "next/link";
 
+const LoadingSpinner: React.FC = () => (
+  <div className="flex items-center justify-center mt-8">
+    <div className="animate-spin rounded-full h-36 w-36 border-t-8 border-white"></div>
+    <span className="ml-6 text-2xl font-semibold text-white">
+      Yükleniyor...
+    </span>
+  </div>
+);
+
 interface PageProps {
   params: {
     id: string; // params prop'unun içindeki id özelliğinin tipini belirtin
@@ -65,6 +74,7 @@ interface Comment {
   comment: string;
   username: string;
   place_name: string;
+  rating: number;
 }
 
 const Page: React.FC<PageProps> = ({ params }) => {
@@ -94,20 +104,33 @@ const Page: React.FC<PageProps> = ({ params }) => {
         comment: newComment,
         username: username,
         place_name: placeName,
+        rating: 0, // İlk başta rating değerini 0 olarak atıyoruz
       };
-
+  
       try {
-        // Yorumu ve kullanıcı adını backend endpointine gönder
+        // Yorumu backend'e gönder
         await axios.post("http://127.0.0.1:8000/comments", commentWithUsername);
-
-        // Yeni yorumu lokal state'i güncelle
-        setComments((prevComments) => [...prevComments, commentWithUsername]);
+  
+        // Tahmin edilen ratingi al
+        const ratingResponse = await axios.post(
+          "http://127.0.0.1:8000/rating",
+          { comment: newComment }
+        );
+        const predictedRating = ratingResponse.data.predicted_rating;
+  
+        // Yorum objesine tahmin edilen ratingi ekleyerek lokal state'i güncelle
+        setComments((prevComments) => [
+          ...prevComments,
+          { ...commentWithUsername, rating: predictedRating },
+        ]);
+        
         setNewComment("");
       } catch (error) {
         console.error("Yorum gönderme hatası:", error);
       }
     }
   };
+  
 
   useEffect(() => {
     if (placeName !== undefined) {
@@ -419,7 +442,7 @@ const Page: React.FC<PageProps> = ({ params }) => {
           </div>
         </div>
       ) : (
-        <p>no result</p>
+        <LoadingSpinner />
       )}
       <div className="flex flex-col py-4 items-center mt-8 justify-center bg-white bg-opacity-80 rounded-lg w-2/3">
         <p className="text-2xl font-bold ">DEĞERLENDİRMELER</p>
@@ -430,7 +453,12 @@ const Page: React.FC<PageProps> = ({ params }) => {
               key={index}
             >
               <p className="font-bold">{comment.username}</p>
-              <p className="line-clamp-2 hover:line-clamp-none transition delay-150 duration-300 hover:delay-300">{comment.comment}</p>
+              <p className="line-clamp-2 hover:line-clamp-none transition delay-150 duration-300 hover:delay-300">
+                {comment.comment}
+              </p>
+              <p className="text-sm font-bold text-gray-500">
+                Rating: {comment.rating}
+              </p>
             </li>
           ))}
         </ul>
