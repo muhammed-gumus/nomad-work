@@ -13,6 +13,11 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from config import MONGO_URI, GMAIL_SENDER_EMAIL, GMAIL_SENDER_PASSWORD
 from typing import Union
+import string
+
+
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.model_selection import train_test_split
 
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.svm import LinearSVC
@@ -98,19 +103,22 @@ def check_existing_user(email: str, username: str):
 
 # User registration endpoint
 
-# Veri setini yükleme
-data = pd.read_csv('yorumlar.csv', usecols=['Review Text', 'Rating'])
+# User registration endpoint
+# Türkçe stopwords listesini yükleme
+nltk.download('stopwords')
+stop_words = set(stopwords.words('turkish'))
 
-# Metin ön işleme fonksiyonu
+# Metin ön işleme fonksiyonunu güncelleme
 def preprocess_text(text):
     # Küçük harfe dönüştürme
     text = text.lower()
-    # Özel karakterleri temizleme
-    text = ''.join(char for char in text if char.isalnum() or char.isspace())
+    # Özel karakterleri temizleme ve stopwords'leri kaldırma
+    text = ' '.join(word for word in text.split() if word not in stop_words)
     return text
 
-# Küçük bir veri örneği oluşturma
-data = data.sample(frac=0.1, random_state=42)
+# Veri setini yükleme
+data = pd.read_csv('yorumlar.csv', usecols=['Review Text', 'Rating'])
+data = data.sample(frac=1, random_state=42)  # Veriyi karıştırma
 
 # Metin ön işleme ve model oluşturma
 X = data['Review Text'].apply(preprocess_text)
@@ -119,17 +127,18 @@ y = data['Rating']
 # Veri setini eğitim ve test setlerine ayırma
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-# Pipeline oluşturma
-pipeline = Pipeline([
+# Pipeline oluşturma ve modeli eğitme (SVM kullanarak)
+pipeline_svc = Pipeline([
     ('vect', TfidfVectorizer(ngram_range=(1, 2))),
     ('clf', LinearSVC())
 ])
 
 # Modeli eğitme
-pipeline.fit(X_train, y_train)
+pipeline_svc.fit(X_train, y_train)
 
+# Tahmin fonksiyonunu güncelleme
 @app.post("/rating")
-def predict_rating(comment_data: dict):
+def predict_rating(comment_data: Dict[str, str]):
     try:
         # Gelen dictionary içindeki "comment" anahtarından yorumu al
         comment = comment_data.get("comment", "")
@@ -138,13 +147,12 @@ def predict_rating(comment_data: dict):
         preprocessed_comment = preprocess_text(comment)
         
         # Tahmin yapma
-        predicted_rating = pipeline.predict([preprocessed_comment])[0]
+        predicted_rating = pipeline_svc.predict([preprocessed_comment])[0]
         
         # Tahmin edilen rating'i dictionary içine ekleyerek döndür
         return {"predicted_rating": str(predicted_rating)}  # Tahmin edilen rating'i string olarak dönüştür
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
 
 
 

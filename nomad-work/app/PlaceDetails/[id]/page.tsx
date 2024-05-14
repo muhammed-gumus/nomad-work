@@ -86,6 +86,7 @@ const Page: React.FC<PageProps> = ({ params }) => {
   const [modalImageUrl, setModalImageUrl] = useState<string | null>(null);
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState<string>("");
+  const [translatedComment, setTranslatedComment] = useState<string | null>(null);
 
   let placeName: string | undefined;
 
