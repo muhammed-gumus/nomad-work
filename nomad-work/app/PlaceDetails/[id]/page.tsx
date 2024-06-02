@@ -1,6 +1,6 @@
 "use client";
-import React from "react";
-import { useEffect, useState } from "react";
+
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Map from "../../../components/Maps";
 import Navbar from "@/components/Navbar";
@@ -18,43 +18,11 @@ const LoadingSpinner: React.FC = () => (
 
 interface PageProps {
   params: {
-    id: string; // params prop'unun içindeki id özelliğinin tipini belirtin
+    id: string;
   };
 }
 
-interface Cafe {
-  name: string;
-  photos?: { photo_reference: string }[];
-  opening_hours?: { open_now: boolean };
-  rating?: number;
-  vicinity: string;
-  place_id: string;
-  user_ratings_total: number;
-  geometry: {
-    location: {
-      lat: number;
-      lng: number;
-    };
-  };
-}
-
-interface Restaurant {
-  name: string;
-  photos?: { photo_reference: string }[];
-  opening_hours?: { open_now: boolean };
-  rating?: number;
-  vicinity: string;
-  place_id: string;
-  user_ratings_total: number;
-  geometry: {
-    location: {
-      lat: number;
-      lng: number;
-    };
-  };
-}
-
-interface Library {
+interface Place {
   name: string;
   photos?: { photo_reference: string }[];
   opening_hours?: { open_now: boolean };
@@ -80,406 +48,237 @@ interface Comment {
 const Page: React.FC<PageProps> = ({ params }) => {
   const { id } = params;
 
-  const [cafe, setCafe] = useState<Cafe | null>(null);
-  const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
-  const [library, setLibrary] = useState<Library | null>(null);
+  const [place, setPlace] = useState<Place | null>(null);
   const [modalImageUrl, setModalImageUrl] = useState<string | null>(null);
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState<string>("");
-  const [translatedComment, setTranslatedComment] = useState<string | null>(null);
+  const [averageRate, setAverageRate] = useState<number | null>(null);
 
-  let placeName: string | undefined;
+  useEffect(() => {
+    const fetchPlaceData = async () => {
+      try {
+        const responses = await Promise.all([
+          axios.get("http://127.0.0.1:8000/cafe"),
+          axios.get("http://127.0.0.1:8000/restaurant"),
+          axios.get("http://127.0.0.1:8000/library"),
+        ]);
 
-  if (cafe !== null) {
-    placeName = cafe.name;
-  } else if (restaurant !== null) {
-    placeName = restaurant.name;
-  } else if (library !== null) {
-    placeName = library.name;
-  }
+        const data = responses.flatMap((response) => response.data.results);
+        const selectedPlace = data.find(
+          (place: Place) => place.place_id === id
+        );
+
+        setPlace(selectedPlace || null);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        setPlace(null);
+      }
+    };
+
+    fetchPlaceData();
+  }, [id]);
+
+  useEffect(() => {
+    if (place) {
+      axios
+        .get("http://127.0.0.1:8000/comments")
+        .then((response) => {
+          const filteredComments = response.data.filter(
+            (comment: any) => comment.place_name === place.name
+          );
+          setComments(filteredComments);
+
+          if (filteredComments.length > 0) {
+            var total: number = 0;
+            for (var i = 0; i < comments.length; i++) {
+              var temp: number = +comments[i].rating;
+              total = total + temp;
+            }
+            var averageRate: number = total / comments.length;
+
+            setAverageRate(averageRate);
+          } else {
+            setAverageRate(null);
+          }
+        })
+        .catch((error) => {
+          console.error("Yorumları çekerken bir hata oluştu:", error);
+        });
+    }
+  }, [place]);
+
+  const handleImageClick = (imageUrl: string) => {
+    setModalImageUrl(imageUrl);
+  };
+
+  const handleCloseModal = () => {
+    setModalImageUrl(null);
+  };
 
   const handleSubmitComment = async () => {
-    if (newComment.trim() !== "" && placeName !== undefined) {
+    if (newComment.trim() !== "" && place) {
       const username = localStorage.getItem("username") || "Anonim";
       const commentWithUsername: Comment = {
         comment: newComment,
         username: username,
-        place_name: placeName,
-        rating: 0, // İlk başta rating değerini 0 olarak atıyoruz
+        place_name: place.name,
+        rating: 0,
       };
-  
+
       try {
-        // Yorumu backend'e gönder
-        await axios.post("http://127.0.0.1:8000/comments", commentWithUsername);
-  
-        // Tahmin edilen ratingi al
         const ratingResponse = await axios.post(
           "http://127.0.0.1:8000/rating",
           { comment: newComment }
         );
         const predictedRating = ratingResponse.data.predicted_rating;
-  
-        // Yorum objesine tahmin edilen ratingi ekleyerek lokal state'i güncelle
+        commentWithUsername.rating = predictedRating;
+
+        await axios.post("http://127.0.0.1:8000/comments", commentWithUsername);
+
         setComments((prevComments) => [
           ...prevComments,
           { ...commentWithUsername, rating: predictedRating },
         ]);
-        
+
         setNewComment("");
       } catch (error) {
         console.error("Yorum gönderme hatası:", error);
       }
     }
   };
-  
 
-  useEffect(() => {
-    if (placeName !== undefined) {
-      // Backend'den yorumları çek
-      axios
-        .get("http://127.0.0.1:8000/comments")
-        .then((response) => {
-          // Filtreleme: Sadece o anki mekanın yorumlarını al
-          const filteredComments = response.data.filter(
-            (comment: any) => comment.place_name === placeName
-          );
-          setComments(filteredComments);
-        })
-        .catch((error) => {
-          console.error("Yorumları çekerken bir hata oluştu:", error);
-        });
-    }
-  }, [placeName]);
+  if (!place) {
+    return <LoadingSpinner />;
+  }
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get("http://127.0.0.1:8000/cafe");
-        console.log(response);
-
-        const data = await response.data;
-        const filterData = data.results.find((e: any) => {
-          return e.place_id === id;
-        });
-
-        setCafe(filterData || null);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-        setCafe(null);
-      }
-    };
-
-    fetchData();
-  }, [id]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get("http://127.0.0.1:8000/restaurant");
-        console.log(response);
-
-        const data = await response.data;
-        const filterData = data.results.find((e: any) => {
-          return e.place_id === id;
-        });
-
-        setRestaurant(filterData || null);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-        setRestaurant(null);
-      }
-    };
-
-    fetchData();
-  }, [id]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get("http://127.0.0.1:8000/library");
-        console.log(response);
-
-        const data = await response.data;
-        const filterData = data.results.find((e: any) => {
-          return e.place_id === id;
-        });
-
-        setLibrary(filterData || null);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-        setLibrary(null);
-      }
-    };
-
-    fetchData();
-  }, [id]);
-
-  // Resme tıklama olayını dinleyen fonksiyon
-  const handleImageClick = (imageUrl: string) => {
-    setModalImageUrl(imageUrl);
-  };
-
-  // Modal'ı kapatma fonksiyonu
-  const handleCloseModal = () => {
-    setModalImageUrl(null);
-  };
+  const averageRating = place.rating || 0;
+  const totalRatings = place.user_ratings_total || 0;
 
   return (
-    <div className="flex flex-col items-center py-4 ">
-      {cafe ? (
-        <div className="flex flex-row py-8 px-4 justify-center mt-8 bg-white bg-opacity-80 rounded-lg w-2/3">
-          <div className="flex flex-col justify-center items-start w-full  px-8 gap-4 rounded-lg">
-            <div>
-              {cafe.photos && cafe.photos.length > 0 ? (
-                <img
-                  src={`https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${cafe.photos[0].photo_reference}&key=AIzaSyB--nWp1tPUs48E0zPePM7eLeS4c9Ny9JE`}
-                  className="rounded-full object-cover h-52 w-52 cursor-pointer hover:scale-110"
-                  alt={`${cafe.name} Photo`}
-                  onClick={() =>
-                    cafe.photos &&
-                    cafe.photos[0] &&
-                    handleImageClick(
-                      `https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&photo_reference=${cafe.photos[0]?.photo_reference}&key=AIzaSyB--nWp1tPUs48E0zPePM7eLeS4c9Ny9JE`
-                    )
-                  }
-                />
-              ) : (
-                <img
-                  src="https://pgsd.fip.hamzanwadi.ac.id/assets/upload/image/aa.png"
-                  className="rounded-full object-cover h-40 w-40"
-                  alt="Default Photo"
-                />
-              )}
-              {modalImageUrl && (
-                <Modal imageUrl={modalImageUrl} onClose={handleCloseModal} />
-              )}
-            </div>
-            <div className="flex flex-col items-start">
-              <p className="tracking-[.05em] mb-2 text-3xl font-bold">
-                {cafe.name}
-              </p>
-              <p>{"Toplam Değerlendirme: " + cafe.user_ratings_total}</p>
-              <p>{"Puan: " + cafe.rating}</p>
-              <p>
-                {cafe.opening_hours?.open_now == true
-                  ? "Çalışma Durumu : (Açık)"
-                  : "Çalışma Durumu : (Kapalı)"}
-              </p>
-              <p>{"Adres: " + cafe.vicinity}</p>
-              <Link href="#form">
-                <button className="flex flex-row gap-3 items-center justify-center text-white px-4 py-2 rounded-lg text-l bg-black transition duration-300 hover:scale-110 mt-2">
-                  DEĞERLENDİR
-                  <svg
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M7.75735 5.63605L6.34314 7.05026L12 12.7071L17.6569 7.05029L16.2427 5.63608L12 9.87872L7.75735 5.63605Z"
-                      fill="currentColor"
-                    />
-                    <path
-                      d="M6.34314 12.7071L7.75735 11.2929L12 15.5356L16.2427 11.2929L17.6569 12.7071L12 18.364L6.34314 12.7071Z"
-                      fill="currentColor"
-                    />
-                  </svg>
-                </button>
-              </Link>
-            </div>
+    <div className="flex flex-col items-center py-4">
+      <div className="flex flex-row py-8 px-4 justify-center mt-8 bg-white bg-opacity-80 rounded-lg w-2/3">
+        <div className="flex flex-col justify-center items-start w-full px-8 gap-4 rounded-lg">
+          <div>
+            {place.photos && place.photos.length > 0 ? (
+              <img
+                src={`https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${place.photos[0].photo_reference}&key=AIzaSyB--nWp1tPUs48E0zPePM7eLeS4c9Ny9JE`}
+                className="rounded-full object-cover h-52 w-52 cursor-pointer hover:scale-110"
+                alt={`${place.name} Photo`}
+                onClick={() =>
+                  place.photos &&
+                  place.photos[0] &&
+                  handleImageClick(
+                    `https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&photo_reference=${place.photos[0]?.photo_reference}&key=AIzaSyB--nWp1tPUs48E0zPePM7eLeS4c9Ny9JE`
+                  )
+                }
+              />
+            ) : (
+              <img
+                src="https://pgsd.fip.hamzanwadi.ac.id/assets/upload/image/aa.png"
+                className="rounded-full object-cover h-40 w-40"
+                alt="Default Photo"
+              />
+            )}
+            {modalImageUrl && (
+              <Modal imageUrl={modalImageUrl} onClose={handleCloseModal} />
+            )}
           </div>
-          <div className="flex w-full items-center justify-center">
-            <Map
-              lat={cafe.geometry.location.lat}
-              lng={cafe.geometry.location.lng}
-              width="80%"
-              height="400px"
-            />
+          <div className="flex flex-col items-start">
+            <p className="tracking-[.05em] mb-2 text-3xl font-bold">
+              {place.name}
+            </p>
+
+            <p>
+              {"Nomad Değerlendirme: " +
+                (averageRate !== null ? averageRate.toFixed(1) : "Yok")}
+            </p>
+            <p>{"Google Değerlendirme: " + averageRating.toFixed(1)}</p>
+
+            <p>
+              {place.opening_hours?.open_now == true
+                ? "Çalışma Durumu : (Açık)"
+                : "Çalışma Durumu : (Kapalı)"}
+            </p>
+            <p>{"Adres: " + place.vicinity}</p>
+            <Link href="#form">
+              <button className="flex flex-row gap-3 items-center justify-center text-white px-4 py-2 rounded-lg text-l bg-black transition duration-300 hover:scale-110 mt-2">
+                DEĞERLENDİR
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M7.75735 5.63605L6.34314 7.05026L12 12.7071L17.6569 7.05029L16.2427 5.63608L12 9.87872L7.75735 5.63605Z"
+                    fill="currentColor"
+                  />
+                  <path
+                    d="M6.34314 12.7071L7.75735 11.2929L12 15.5356L16.2427 11.2929L17.6569 12.7071L12 18.364L6.34314 12.7071Z"
+                    fill="currentColor"
+                  />
+                </svg>
+              </button>
+            </Link>
           </div>
         </div>
-      ) : restaurant ? (
-        <div className="flex flex-row py-8 px-4 justify-center mt-8 bg-white bg-opacity-80 rounded-lg w-2/3">
-          <div className="flex flex-col justify-center items-start w-full  px-8 gap-4 rounded-lg">
-            <div>
-              {restaurant.photos && restaurant.photos.length > 0 ? (
-                <img
-                  src={`https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${restaurant.photos[0].photo_reference}&key=AIzaSyB--nWp1tPUs48E0zPePM7eLeS4c9Ny9JE`}
-                  className="rounded-full object-cover h-52 w-52 cursor-pointer hover:scale-110"
-                  alt={`${restaurant.name} Photo`}
-                  onClick={() =>
-                    restaurant.photos &&
-                    restaurant.photos[0] &&
-                    handleImageClick(
-                      `https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&photo_reference=${restaurant.photos[0]?.photo_reference}&key=AIzaSyB--nWp1tPUs48E0zPePM7eLeS4c9Ny9JE`
-                    )
-                  }
-                />
-              ) : (
-                <img
-                  src="https://pgsd.fip.hamzanwadi.ac.id/assets/upload/image/aa.png"
-                  className="rounded-full object-cover h-40 w-40"
-                  alt="Default Photo"
-                />
-              )}
-              {modalImageUrl && (
-                <Modal imageUrl={modalImageUrl} onClose={handleCloseModal} />
-              )}
-            </div>
-            <div className="flex flex-col items-start">
-              <p className="tracking-[.05em] mb-2 text-3xl font-bold">
-                {restaurant.name}
-              </p>
-              <p>{"Toplam Değerlendirme: " + restaurant.user_ratings_total}</p>
-              <p>{"Puan: " + restaurant.rating}</p>
-              <p>
-                {restaurant.opening_hours?.open_now == true
-                  ? "Çalışma Durumu : (Açık)"
-                  : "Çalışma Durumu : (Kapalı)"}
-              </p>
-              <p>{"Adres: " + restaurant.vicinity}</p>
-              <Link href="#form">
-                <button className="flex flex-row gap-3 items-center justify-center text-white px-4 py-2 rounded-lg text-l bg-black transition duration-300 hover:scale-110 mt-2">
-                  DEĞERLENDİR
-                  <svg
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M7.75735 5.63605L6.34314 7.05026L12 12.7071L17.6569 7.05029L16.2427 5.63608L12 9.87872L7.75735 5.63605Z"
-                      fill="currentColor"
-                    />
-                    <path
-                      d="M6.34314 12.7071L7.75735 11.2929L12 15.5356L16.2427 11.2929L17.6569 12.7071L12 18.364L6.34314 12.7071Z"
-                      fill="currentColor"
-                    />
-                  </svg>
-                </button>
-              </Link>
-            </div>
-          </div>
-          <div className="flex w-full items-center justify-center">
-            <Map
-              lat={restaurant.geometry.location.lat}
-              lng={restaurant.geometry.location.lng}
-              width="80%"
-              height="400px"
-            />
-          </div>
+        <div className="flex w-full items-center justify-center">
+          <Map
+            lat={place.geometry.location.lat}
+            lng={place.geometry.location.lng}
+            width="80%"
+            height="400px"
+          />
         </div>
-      ) : library ? (
-        <div className="flex flex-row py-8 px-4 justify-center mt-8 bg-white bg-opacity-80 rounded-lg w-2/3">
-          <div className="flex flex-col justify-center items-start w-full  px-8 gap-4 rounded-lg">
-            <div>
-              {library.photos && library.photos.length > 0 ? (
-                <img
-                  src={`https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${library.photos[0].photo_reference}&key=AIzaSyB--nWp1tPUs48E0zPePM7eLeS4c9Ny9JE`}
-                  className="rounded-full object-cover h-52 w-52 cursor-pointer hover:scale-110"
-                  alt={`${library.name} Photo`}
-                  onClick={() =>
-                    library.photos &&
-                    library.photos[0] &&
-                    handleImageClick(
-                      `https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&photo_reference=${library.photos[0]?.photo_reference}&key=AIzaSyB--nWp1tPUs48E0zPePM7eLeS4c9Ny9JE`
-                    )
-                  }
-                />
-              ) : (
-                <img
-                  src="https://pgsd.fip.hamzanwadi.ac.id/assets/upload/image/aa.png"
-                  className="rounded-full object-cover h-40 w-40"
-                  alt="Default Photo"
-                />
-              )}
-              {modalImageUrl && (
-                <Modal imageUrl={modalImageUrl} onClose={handleCloseModal} />
-              )}
-            </div>
-            <div className="flex flex-col items-start">
-              <p className="tracking-[.05em] mb-2 text-3xl font-bold">
-                {library.name}
-              </p>
-              <p>{"Toplam Değerlendirme: " + library.user_ratings_total}</p>
-              <p>{"Puan: " + library.rating}</p>
-              <p>
-                {library.opening_hours?.open_now == true
-                  ? "Çalışma Durumu : (Açık)"
-                  : "Çalışma Durumu : (Kapalı)"}
-              </p>
-              <p>{"Adres: " + library.vicinity}</p>
-              <Link href="#form">
-                <button className="flex flex-row gap-3 items-center justify-center text-white px-4 py-2 rounded-lg text-l bg-black transition duration-300 hover:scale-110 mt-2">
-                  DEĞERLENDİR
-                  <svg
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M7.75735 5.63605L6.34314 7.05026L12 12.7071L17.6569 7.05029L16.2427 5.63608L12 9.87872L7.75735 5.63605Z"
-                      fill="currentColor"
-                    />
-                    <path
-                      d="M6.34314 12.7071L7.75735 11.2929L12 15.5356L16.2427 11.2929L17.6569 12.7071L12 18.364L6.34314 12.7071Z"
-                      fill="currentColor"
-                    />
-                  </svg>
-                </button>
-              </Link>
-            </div>
-          </div>
-          <div className="flex w-full items-center justify-center">
-            <Map
-              lat={library.geometry.location.lat}
-              lng={library.geometry.location.lng}
-              width="80%"
-              height="400px"
-            />
-          </div>
-        </div>
-      ) : (
-        <LoadingSpinner />
-      )}
+      </div>
       <div className="flex flex-col py-4 items-center mt-8 justify-center bg-white bg-opacity-80 rounded-lg w-2/3">
         <p className="text-2xl font-bold ">DEĞERLENDİRMELER</p>
         <ul className="flex flex-col gap-4 w-3/4 mt-4">
           {comments.map((comment, index) => (
             <li
-              className="w-full bg-white w-2/3 py-2 px-4 rounded-lg"
               key={index}
+              className="p-4 bg-white bg-opacity-60 rounded-lg shadow-md"
             >
-              <p className="font-bold">{comment.username}</p>
-              <p className="line-clamp-2 hover:line-clamp-none transition delay-150 duration-300 hover:delay-300">
-                {comment.comment}
-              </p>
-              <p className="text-sm font-bold text-gray-500">
-                Rating: {comment.rating}
-              </p>
+              <div className="flex items-center mb-2">
+                <svg
+                  className="w-6 h-6 text-gray-500 mr-2"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm-1-7a1 1 0 112-0 1 1 0 01-2 0zm0 4a1 1 0 112-0 1 1 0 01-2 0zm0-8a1 1 0 112-0 1 1 0 01-2 0z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                <p className="text-gray-700 font-semibold">
+                  {comment.username}
+                </p>
+              </div>
+              <p className="text-gray-700">{comment.comment}</p>
+              <p className="text-gray-500 text-sm">Rating: {comment.rating}</p>
             </li>
           ))}
         </ul>
-
-        <div id="form" className="mt-8 w-3/4 flex justify-center">
-          <input
-            type="text"
+        <div id="form" className="mt-8 w-full px-8">
+          <p className="text-xl font-bold mb-2">Değerlendirme Ekle</p>
+          <textarea
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
             placeholder="Yorumunuzu buraya yazın..."
-            className="border p-4 w-full rounded-lg"
+            className="w-full p-2 border rounded-lg"
           />
           <button
             onClick={handleSubmitComment}
-            className="ml-2 px-4 bg-blue-500 w-2/5 text-white rounded"
+            className="mt-2 px-4 py-2 text-white bg-black rounded-lg hover:bg-gray-800"
           >
-            Yorum Gönder
+            Gönder
           </button>
         </div>
       </div>
+      <div className="h-8"></div>
     </div>
   );
 };

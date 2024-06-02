@@ -1,11 +1,10 @@
 "use client";
-import React, { useState } from "react";
+
+import React, { useState, useEffect } from "react";
 import Cafe from "../Places/Cafe/page";
 import Library from "../Places/Library/page";
 import Restaurant from "../Places/Restaurant/page";
 import Bakery from "../Places/Bakery/page";
-import Navbar from "@/components/Navbar";
-import { useEffect } from "react";
 import AuthModal from "@/components/AuthModal";
 import AuthRequiredModal from "@/components/AuthRequiredModal.tsx";
 
@@ -14,9 +13,10 @@ const Page: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isAuthRequiredModalOpen, setIsAuthRequiredModalOpen] = useState(false);
+  const [sortByRating, setSortByRating] = useState(false);
+  const [showOnlyOpen, setShowOnlyOpen] = useState(false);
 
   useEffect(() => {
-    // localStorage'dan jwtToken ve username kontrolü yap
     const jwtToken = localStorage.getItem("jwtToken");
     const username = localStorage.getItem("username");
 
@@ -26,7 +26,7 @@ const Page: React.FC = () => {
     } else {
       setIsAuthRequiredModalOpen(true);
     }
-  }, []); // Boş dependency array, useEffect'in sadece bir kez çalışmasını sağlar
+  }, []);
 
   const handleAuthModalClose = () => {
     setIsAuthModalOpen(false);
@@ -34,6 +34,14 @@ const Page: React.FC = () => {
 
   const handleAuthRequiredModalClose = () => {
     setIsAuthRequiredModalOpen(false);
+  };
+
+  const handleSortByRating = () => {
+    setSortByRating(!sortByRating);
+  };
+
+  const handleShowOnlyOpen = () => {
+    setShowOnlyOpen(!showOnlyOpen);
   };
 
   return (
@@ -69,16 +77,6 @@ const Page: React.FC = () => {
           >
             Restoran
           </button>
-          {/* <button
-            className={`${
-              selectedCategory === "Bakery"
-                ? "text-xl"
-                : "text-base opacity-50 hover:opacity-75"
-            } transition-all duration-300 ease-in-out`}
-            onClick={() => setSelectedCategory("Bakery")}
-          >
-            Bakery
-          </button> */}
           <button
             className={`${
               selectedCategory === "Library"
@@ -91,9 +89,32 @@ const Page: React.FC = () => {
           </button>
         </div>
 
-        {selectedCategory === "Cafe" && <Cafe />}
+        <div className="flex gap-4 mt-4">
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={sortByRating}
+              onChange={handleSortByRating}
+              className="rounded border-gray-300 focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+            />
+            <span>Rating'e Göre Sırala</span>
+          </label>
+
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={showOnlyOpen}
+              onChange={handleShowOnlyOpen}
+              className="rounded border-gray-300 focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+            />
+            <span>Sadece Açık Mekanlar</span>
+          </label>
+        </div>
+
+        {selectedCategory === "Cafe" && (
+          <Cafe sortByRating={sortByRating} showOnlyOpen={showOnlyOpen} />
+        )}
         {selectedCategory === "Restaurant" && <Restaurant />}
-        {/* {selectedCategory === "Restaurant" && <Bakery />} */}
         {selectedCategory === "Library" && <Library />}
       </div>
     </div>

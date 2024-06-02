@@ -28,7 +28,7 @@ const SessionManager: React.FC = () => {
         10
       );
       const currentTime = Date.now();
-      const sessionTimeout = 5 * 60 * 1000; // 5 dakika
+      const sessionTimeout = 10 * 60 * 1000; // 5 dakika
 
       if (currentTime - lastInteractionTime > sessionTimeout) {
         // Oturumu sonlandır

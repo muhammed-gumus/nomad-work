@@ -101,9 +101,6 @@ def check_existing_user(email: str, username: str):
     else:
         return False
 
-# User registration endpoint
-
-# User registration endpoint
 # Türkçe stopwords listesini yükleme
 nltk.download('stopwords')
 stop_words = set(stopwords.words('turkish'))
