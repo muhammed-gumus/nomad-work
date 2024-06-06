@@ -4,7 +4,6 @@ import React, { useState, useEffect } from "react";
 import Cafe from "../Places/Cafe/page";
 import Library from "../Places/Library/page";
 import Restaurant from "../Places/Restaurant/page";
-import Bakery from "../Places/Bakery/page";
 import AuthModal from "@/components/AuthModal";
 import AuthRequiredModal from "@/components/AuthRequiredModal.tsx";
 
@@ -15,6 +14,7 @@ const Page: React.FC = () => {
   const [isAuthRequiredModalOpen, setIsAuthRequiredModalOpen] = useState(false);
   const [sortByRating, setSortByRating] = useState(false);
   const [showOnlyOpen, setShowOnlyOpen] = useState(false);
+  const [sortByNomadRating, setSortByNomadRating] = useState(false); // Yeni state
 
   useEffect(() => {
     const jwtToken = localStorage.getItem("jwtToken");
@@ -42,6 +42,10 @@ const Page: React.FC = () => {
 
   const handleShowOnlyOpen = () => {
     setShowOnlyOpen(!showOnlyOpen);
+  };
+
+  const handleSortByNomadRating = () => {
+    setSortByNomadRating(!sortByNomadRating); // Yeni fonksiyon
   };
 
   return (
@@ -97,7 +101,7 @@ const Page: React.FC = () => {
               onChange={handleSortByRating}
               className="rounded border-gray-300 focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
             />
-            <span>Rating'e Göre Sırala</span>
+            <span>Google Değerlendirmelerine Göre Sırala</span>
           </label>
 
           <label className="flex items-center gap-2">
@@ -109,10 +113,20 @@ const Page: React.FC = () => {
             />
             <span>Sadece Açık Mekanlar</span>
           </label>
+
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={sortByNomadRating}
+              onChange={handleSortByNomadRating} // Yeni checkbox
+              className="rounded border-gray-300 focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+            />
+            <span>Nomad Değerlendirmelerine Göre Sırala</span>
+          </label>
         </div>
 
         {selectedCategory === "Cafe" && (
-          <Cafe sortByRating={sortByRating} showOnlyOpen={showOnlyOpen} />
+          <Cafe sortByRating={sortByRating} showOnlyOpen={showOnlyOpen} sortByNomadRating={sortByNomadRating} /> // Yeni prop eklendi
         )}
         {selectedCategory === "Restaurant" && <Restaurant />}
         {selectedCategory === "Library" && <Library />}
