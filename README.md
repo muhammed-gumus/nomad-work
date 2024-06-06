@@ -1,4 +1,4 @@
-# Nomad Work 
+# Nomad Work
 
 ![Nomad Work Logo](https://github.com/muhammed-gumus/nomad-work/assets/86381278/0b801181-ad81-4622-ade8-71c7e00d4530)
 
@@ -27,3 +27,7 @@ Eğer projemize katkıda bulunmak istiyorsanız, lütfen [CONTRIBUTING.md](CONTR
 Soru, öneri veya geri bildirimleriniz için bize [mgumus4102@gmail.com] adresinden ulaşabilirsiniz.
 
 İyi şanslar ve keyifli çalışmalar!
+
+python3 -m uvicorn main:app --reload
+
+npm run dev
