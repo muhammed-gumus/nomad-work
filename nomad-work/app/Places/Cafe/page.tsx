@@ -24,31 +24,71 @@ interface Cafe {
   place_id: string;
 }
 
+interface Comment {
+  place_name: string;
+  username: string;
+  comment: string;
+  rating: string;  // Backend'den string olarak geldiği için burada da string
+}
+
 interface CafeProps {
   sortByRating: boolean;
+  sortByNomadRating: boolean;
   showOnlyOpen: boolean;
 }
 
-const Page: React.FC<CafeProps> = ({ sortByRating, showOnlyOpen }) => {
+const Page: React.FC<CafeProps> = ({ sortByRating, sortByNomadRating, showOnlyOpen }) => {
   const [places, setPlaces] = useState<Cafe[]>([]);
+  const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const { averageRates } = useAverageRate();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get("http://127.0.0.1:8000/cafe");
-        const data = await response.data;
+        const [placesResponse, commentsResponse] = await Promise.all([
+          axios.get("http://127.0.0.1:8000/cafe"),
+          axios.get("http://127.0.0.1:8000/comments")
+        ]);
 
-        let sortedPlaces = data.results;
+        const placesData = await placesResponse.data;
+        const commentsData = await commentsResponse.data;
 
-        if (sortByRating) {
-          sortedPlaces = sortedPlaces.sort((a: Cafe, b: Cafe) => {
-            if (a.rating && b.rating) {
-              return b.rating - a.rating;
-            } else {
-              return 0;
+        let sortedPlaces = placesData.results;
+
+        // Sıralama algoritması
+        sortedPlaces = sortedPlaces.sort((a: Cafe, b: Cafe) => {
+          let result = 0;
+
+          // Google rating'e göre sıralama
+          if (sortByRating) {
+            const aRating = a.rating || 0;
+            const bRating = b.rating || 0;
+            result = bRating - aRating;
+          }
+
+          // Eğer Google rating eşitse veya sıralama yapılmamışsa Nomad rating'e göre sıralama
+          if (sortByNomadRating && result === 0) {
+            const aNomadRating = parseFloat(getAverageRating(a.name));
+            const bNomadRating = parseFloat(getAverageRating(b.name));
+            if (!isNaN(aNomadRating) && !isNaN(bNomadRating)) {
+              result = bNomadRating - aNomadRating;
+            } else if (!isNaN(aNomadRating)) {
+              result = -1; // a'nın değerlendirmesi var ama b'nin yok
+            } else if (!isNaN(bNomadRating)) {
+              result = 1; // b'nin değerlendirmesi var ama a'nın yok
             }
+          }
+
+          return result;
+        });
+
+        // Sıralama tamamlandıktan sonra, eğer her iki sıralama seçeneği de seçiliyorsa, toplam ratinglere göre tekrar sırala
+        if (sortByRating && sortByNomadRating) {
+          sortedPlaces = sortedPlaces.sort((a: Cafe, b: Cafe) => {
+            const aTotalRating = (a.rating || 0) + parseFloat(getAverageRating(a.name)) || 0;
+            const bTotalRating = (b.rating || 0) + parseFloat(getAverageRating(b.name)) || 0;
+            return bTotalRating - aTotalRating;
           });
         }
 
@@ -59,6 +99,7 @@ const Page: React.FC<CafeProps> = ({ sortByRating, showOnlyOpen }) => {
         }
 
         setPlaces(sortedPlaces);
+        setComments(commentsData);
         setLoading(false);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -68,7 +109,16 @@ const Page: React.FC<CafeProps> = ({ sortByRating, showOnlyOpen }) => {
     };
 
     fetchData();
-  }, [sortByRating, showOnlyOpen]);
+  }, [sortByRating, sortByNomadRating, showOnlyOpen]);
+
+  const getAverageRating = (placeName: string) => {
+    const placeComments = comments.filter(comment => comment.place_name === placeName);
+    if (placeComments.length === 0) return "Değerlendirme Yok";
+
+    const totalRating = placeComments.reduce((sum, comment) => sum + parseFloat(comment.rating), 0);
+    const averageRating = totalRating / placeComments.length;
+    return isNaN(averageRating) ? "Değerlendirme Yok" : averageRating.toFixed(2);  // Ortalama rating'i 2 ondalık basamakla göster
+  };
 
   if (loading) {
     return <LoadingSpinner />;
@@ -96,15 +146,14 @@ const Page: React.FC<CafeProps> = ({ sortByRating, showOnlyOpen }) => {
             />
           )}
           <div>
-            <p className="my-4 font-bold">{place.name}</p>
+            <p className="my-4 font-bold text-xl">{place.name}</p>
             <p className="my-4 ">Adres: {place.vicinity}</p>
             <p className="my-4">
               Çalışma Durumu:{" "}
               {place.opening_hours?.open_now ? "Açık" : "Kapalı"}
             </p>
-            <p className="my-4">Google Rating: {place.rating}</p>
-            <p className="my-4">User Rating: {place.user_ratings_total}</p>
-            <p className="my-4">Average Rate: {averageRates[place.place_id]}</p> {/* averageRates eklenmesi */}
+            <p className="my-4">Google Değerlendirme: {place.rating}</p>
+            <p className="my-4">Nomad Değerlendirme: {getAverageRating(place.name)}</p> {/* Ortalama yorum rating eklenmesi */}
           </div>
         </Link>
       ))}
