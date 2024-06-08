@@ -8,13 +8,12 @@ from passlib.context import CryptContext
 from datetime import datetime, timedelta
 from jose import JWTError, jwt
 import smtplib
-import requests
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from config import MONGO_URI, GMAIL_SENDER_EMAIL, GMAIL_SENDER_PASSWORD
 from typing import Union
 import string
-
+from deep_translator import GoogleTranslator  # Çeviri için deep_translator kütüphanesi
 
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.model_selection import train_test_split
@@ -31,8 +30,8 @@ from nltk.corpus import stopwords
 from nltk.classify.scikitlearn import SklearnClassifier
 from sklearn.naive_bayes import MultinomialNB
 import random
-from googletrans import Translator
 import time
+import requests
 
 
 # MongoDB connections
@@ -103,7 +102,7 @@ def check_existing_user(email: str, username: str):
 
 # Türkçe stopwords listesini yükleme
 nltk.download('stopwords')
-stop_words = set(stopwords.words('turkish'))
+stop_words = set(stopwords.words('english'))
 
 # Metin ön işleme fonksiyonunu güncelleme
 def preprocess_text(text):
@@ -133,6 +132,14 @@ pipeline_svc = Pipeline([
 # Modeli eğitme
 pipeline_svc.fit(X_train, y_train)
 
+# Çeviri fonksiyonu
+def translate_text(text, source_language="tr", target_language="en"):
+    try:
+        translated_text = GoogleTranslator(source=source_language, target=target_language).translate(text)
+        return translated_text
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Translation error: {str(e)}")
+
 # Tahmin fonksiyonunu güncelleme
 @app.post("/rating")
 def predict_rating(comment_data: Dict[str, str]):
@@ -140,8 +147,11 @@ def predict_rating(comment_data: Dict[str, str]):
         # Gelen dictionary içindeki "comment" anahtarından yorumu al
         comment = comment_data.get("comment", "")
         
+        # Yorumu İngilizceye çevirme
+        translated_comment = translate_text(comment)
+        
         # Yorumun önişlenmesi
-        preprocessed_comment = preprocess_text(comment)
+        preprocessed_comment = preprocess_text(translated_comment)
         
         # Tahmin yapma
         predicted_rating = pipeline_svc.predict([preprocessed_comment])[0]
@@ -230,33 +240,27 @@ def login_for_token(user_info: dict):
 # Example protected endpoint using JWT for authentication
 
 
+# Example protected endpoint using JWT for authentication
 @app.get("/comments")
 def get_comments():
     try:
-        # MongoDB'den tüm yorumları al
-        comments_collection = db4["Comment"]
-        comments = comments_collection.find({}, {"_id": 0})
-
-        # Yorumları liste halinde döndür
-        return list(comments)
+        # MongoDB'den yorumları al
+        collection = db4["Comment"]
+        comments = list(collection.find({}, {"_id": 0}))  # "_id": 0, ObjectId'in gösterilmesini engeller
+        return comments
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
-# Yorumları kaydetmek için yeni endpoint
-
 
 @app.post("/comments")
 def add_comment(comment_data: dict):
     try:
-        # Gelen dictionary içindeki "comment" anahtarından yorumu al
+        # Yorum bilgilerini al
         comment = comment_data.get("comment", "")
-        # Gelen dictionary içindeki "place_name" anahtarından yer ismini al
         place_name = comment_data.get("place_name", "")
-        # Gelen dictionary içindeki "username" anahtarından kullanıcı adını al
         username = comment_data.get("username", "")
 
         # Tahmin edilen rating'i almak için rating endpointini çağır
-        predicted_rating_response = predict_rating(comment_data)
+        predicted_rating_response = predict_rating({"comment": comment})
         predicted_rating = predicted_rating_response.get("predicted_rating", None)
 
         # MongoDB'ye yorumu ve ratingi ekleyin
@@ -264,8 +268,8 @@ def add_comment(comment_data: dict):
         result = new_collection.insert_one({
             "place_name": place_name,
             "username": username,
-            "comment": comment,
-            "rating": predicted_rating,  # Tahmin edilen rating'i kaydet
+            "comment": comment,  # Orijinal Türkçe yorum kaydedilecek
+            "rating": predicted_rating,
             "timestamp": datetime.utcnow()
         })
 
@@ -274,6 +278,7 @@ def add_comment(comment_data: dict):
         return {"comment_id": comment_id}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
 
 
 
