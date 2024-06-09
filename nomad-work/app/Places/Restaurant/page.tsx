@@ -21,18 +21,37 @@ interface Restaurant {
   place_id: string;
 }
 
-const Page: React.FC = () => {
+interface Comment {
+  place_name: string;
+  username: string;
+  comment: string;
+  rating: string;  // Backend'den string olarak geldiği için burada da string
+}
+
+interface RestaurantProps {
+  sortByRating: boolean;
+  showOnlyOpen: boolean;
+  sortByNomadRating: boolean;
+}
+
+const Restaurant: React.FC<RestaurantProps> = ({ sortByRating, showOnlyOpen, sortByNomadRating }) => {
   const [places, setPlaces] = useState<Restaurant[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [comments, setComments] = useState<Comment[]>([]); // Yorumları tutmak için bir state tanımla
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get("http://127.0.0.1:8000/restaurant");
-        console.log(response);
+        const [response, commentsResponse] = await Promise.all([
+          axios.get("http://127.0.0.1:8000/restaurant"),
+          axios.get("http://127.0.0.1:8000/comments")
+        ]);
 
         const data = await response.data;
+        const commentsData = await commentsResponse.data;
+
         setPlaces(data.results);
+        setComments(commentsData); // Yorumları state'e ekle
         setLoading(false);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -44,13 +63,52 @@ const Page: React.FC = () => {
     fetchData();
   }, []);
 
+  const getNomadRating = (placeName: string): string => {
+    const placeComments = comments.filter(comment => comment.place_name === placeName);
+    if (placeComments.length === 0) return "Değerlendirme Yok";
+  
+    const totalRating = placeComments.reduce((sum, comment) => sum + parseFloat(comment.rating), 0);
+    const averageRating = totalRating / placeComments.length;
+    return isNaN(averageRating) ? "Değerlendirme Yok" : averageRating.toFixed(2);
+  };
+
+  const filterAndSortPlaces = (places: Restaurant[]): Restaurant[] => {
+    let filteredPlaces = [...places];
+
+    if (showOnlyOpen) {
+      filteredPlaces = filteredPlaces.filter(place => place.opening_hours?.open_now);
+    }
+
+    if (sortByRating && sortByNomadRating) {
+      filteredPlaces.sort((a, b) => {
+        const aNomadRating = parseFloat(getNomadRating(a.name)) || 0;
+        const bNomadRating = parseFloat(getNomadRating(b.name)) || 0;
+        const aTotalRating = (a.rating || 0) + aNomadRating;
+        const bTotalRating = (b.rating || 0) + bNomadRating;
+        return bTotalRating - aTotalRating;
+      });
+    } else if (sortByRating) {
+      filteredPlaces.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+    } else if (sortByNomadRating) {
+      filteredPlaces.sort((a, b) => {
+        const aNomadRating = parseFloat(getNomadRating(a.name)) || 0;
+        const bNomadRating = parseFloat(getNomadRating(b.name)) || 0;
+        return bNomadRating - aNomadRating;
+      });
+    }
+
+    return filteredPlaces;
+  };
+
   if (loading) {
     return <LoadingSpinner />;
   }
 
+  const sortedAndFilteredPlaces = filterAndSortPlaces(places);
+
   return (
     <div className="flex w-full justify-center flex-col items-center my-16 gap-4">
-      {places.map((place, index) => (
+      {sortedAndFilteredPlaces.map((place, index) => (
         <Link
           className="flex flex-row items-start bg-white w-2/3 py-8 px-8 gap-8 rounded-lg"
           href={`/PlaceDetails/${place.place_id}`}
@@ -76,6 +134,8 @@ const Page: React.FC = () => {
               Çalışma Durumu:{" "}
               {place.opening_hours?.open_now ? "Açık" : "Kapalı"}
             </p>
+            <p className="my-4">Google Değerlendirme: {place.rating}</p>
+            <p className="my-4">Nomad Değerlendirme: {getNomadRating(place.name)}</p>
           </div>
         </Link>
       ))}
@@ -83,4 +143,4 @@ const Page: React.FC = () => {
   );
 };
 
-export default Page;
+export default Restaurant;
