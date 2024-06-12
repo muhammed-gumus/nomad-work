@@ -1,3 +1,4 @@
+// AuthModal.tsx
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -27,7 +28,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
   return (
     <div className={`fixed inset-0 flex items-center justify-center ${isOpen && !isConfirmed ? '' : 'hidden'}`}>
       <div className="fixed inset-0 bg-black opacity-50"></div>
-      <div className="bg-white p-12 flex flex-col items-center  rounded-md z-10">
+      <div className="bg-white p-12 flex flex-col items-center rounded-md z-10">
         <p className="text-black text-2xl font-semibold mb-2">Hoşgeldin!</p>
         <p className="text-black text-2xl font-semibold mb-4">Nomad Work ile keşfetmeye başla...</p>
         <button

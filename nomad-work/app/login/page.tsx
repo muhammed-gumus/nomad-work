@@ -4,9 +4,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import Navbar from "@/components/Navbar";
 import useLocalStorage from "@/useLocalStorage";
-import { log } from "console";
 
 const LoginPage: React.FC = () => {
   const [username, setUsername] = useState("");
@@ -23,12 +21,7 @@ const LoginPage: React.FC = () => {
   );
 
   useEffect(() => {
-    // Sayfa yüklendiğinde, eğer kullanıcı daha önce giriş yapmışsa otomatik olarak ana sayfaya yönlendir
-    // const jwtToken = localStorage.getItem("jwtToken");
-
     if (localToken) {
-      // Burada gerçek bir authentication işlemi yapmanız gerekebilir (örneğin, token'ı doğrulamak)
-      // const storedUsername = localStorage.getItem("username") || null;
       setIsAuthenticated(true);
       setUser(localUserName);
     }
@@ -49,20 +42,6 @@ const LoginPage: React.FC = () => {
         }),
       });
 
-      const tokenRes = await fetch("http://127.0.0.1:8000/token", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          username: username,
-          password: password,
-        }),
-      });
-
-      const tokenData = await tokenRes.json();
-      console.log(tokenData, "x mami");
-
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
@@ -71,7 +50,6 @@ const LoginPage: React.FC = () => {
       console.log(loginData, "login data");
 
       if (loginData.message === "Giriş başarıyla gerçekleşti") {
-        console.log("Kullanıcı bilgileri:", loginData);
         setIsAuthenticated(true);
         setUsername("");
         setPassword("");
@@ -79,13 +57,7 @@ const LoginPage: React.FC = () => {
         setUser(loginData.user_name);
 
         // JWT'yi localStorage'e kaydet
-
-        // localStorage.setItem("jwtToken", loginData.access_token);
-        setLocalToken(tokenData.access_token);
-        console.log(tokenData.access_token, "access token");
-
-        // Kullanıcı adını localStorage'e kaydet
-        // localStorage.setItem("username", loginData.user_name);
+        setLocalToken(loginData.access_token);
         setLocalUserName(loginData.user_name);
 
         router.push("/", { scroll: false });

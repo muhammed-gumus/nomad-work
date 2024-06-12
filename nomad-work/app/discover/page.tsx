@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import Cafe from "../Places/Cafe/page";
-import Library from "../Places/Library/page";
+import Library from "../Places/Library/page"; // Library import edildi
 import Restaurant from "../Places/Restaurant/page";
 import AuthModal from "@/components/AuthModal";
 import AuthRequiredModal from "@/components/AuthRequiredModal.tsx";
@@ -170,7 +170,13 @@ const Page: React.FC = () => {
             sortByNomadRating={sortByNomadRating}
           />
         )}
-        {selectedCategory === "Library" && <Library />}
+        {selectedCategory === "Library" && (
+          <Library
+            sortByRating={sortByRating}
+            showOnlyOpen={showOnlyOpen}
+            sortByNomadRating={sortByNomadRating}
+          />
+        )}
       </div>
     </div>
   );

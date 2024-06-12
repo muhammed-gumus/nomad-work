@@ -113,6 +113,7 @@ const RegisterPage: React.FC = () => {
       setError("Kullanıcı adı veya mail adresi zaten kullanılıyor.");
     }
   };
+
   return (
     <div className="flex flex-col items-center py-4 mt-8">
       <div className="flex flex-col px-8 py-4 items-center justify-center mt-8 bg-white bg-opacity-50 rounded-lg w-1/3">

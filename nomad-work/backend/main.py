@@ -1,4 +1,3 @@
-from fastapi import Depends
 from fastapi import FastAPI, HTTPException, Depends
 from pymongo import MongoClient
 from fastapi.middleware.cors import CORSMiddleware
@@ -13,7 +12,8 @@ from email.mime.multipart import MIMEMultipart
 from config import MONGO_URI, GMAIL_SENDER_EMAIL, GMAIL_SENDER_PASSWORD
 from typing import Union
 import string
-from deep_translator import GoogleTranslator  # Çeviri için deep_translator kütüphanesi
+# Çeviri için deep_translator kütüphanesi
+from deep_translator import GoogleTranslator
 
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.model_selection import train_test_split
@@ -27,12 +27,11 @@ import pandas as pd
 import nltk
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
-from nltk.classify.scikitlearn import SklearnClassifier
-from sklearn.naive_bayes import MultinomialNB
+from nltk.stem.snowball import SnowballStemmer
+from sklearn.metrics import accuracy_score
 import random
 import time
 import requests
-
 
 # MongoDB connections
 myclient = MongoClient(
@@ -42,7 +41,6 @@ db1 = myclient["Discover"]
 db2 = myclient["Users"]
 db3 = myclient["Mails"]
 db4 = myclient["Comments"]
-
 
 # FastAPI app
 app = FastAPI()
@@ -71,8 +69,9 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 # Kullanıcı bilgilerini depolamak için bir veri yapısı
 users_db: Dict[str, dict] = {}
 
-
 # Dependency to get the current user
+
+
 def get_current_user(token: str = Depends(oauth2_scheme)):
     credentials_exception = HTTPException(
         status_code=401,
@@ -90,6 +89,7 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
 
     return username
 
+
 def check_existing_user(email: str, username: str):
     collection = db2["User"]
     existing_email = collection.find_one({"email": email})
@@ -100,20 +100,28 @@ def check_existing_user(email: str, username: str):
     else:
         return False
 
-# Türkçe stopwords listesini yükleme
+
+# Türkçe stopwords ve stemmer yükleme
 nltk.download('stopwords')
 stop_words = set(stopwords.words('english'))
+stemmer = SnowballStemmer("english")
 
 # Metin ön işleme fonksiyonunu güncelleme
+
+
 def preprocess_text(text):
     # Küçük harfe dönüştürme
     text = text.lower()
     # Özel karakterleri temizleme ve stopwords'leri kaldırma
-    text = ' '.join(word for word in text.split() if word not in stop_words)
-    return text
+    words = text.split()
+    words = [stemmer.stem(word)
+             for word in words if word not in stop_words and word.isalpha()]
+    return ' '.join(words)
+
 
 # Veri setini yükleme
-data = pd.read_csv('yorumlar.csv', usecols=['Review Text', 'Rating'])
+data = pd.read_csv('/Users/muhammedgumus/Desktop/nomad/nomad-work/nomad-work/backend/yorumlar.csv',
+                   usecols=['Review Text', 'Rating'])
 data = data.sample(frac=1, random_state=42)  # Veriyi karıştırma
 
 # Metin ön işleme ve model oluşturma
@@ -121,7 +129,8 @@ X = data['Review Text'].apply(preprocess_text)
 y = data['Rating']
 
 # Veri setini eğitim ve test setlerine ayırma
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42)
 
 # Pipeline oluşturma ve modeli eğitme (SVM kullanarak)
 pipeline_svc = Pipeline([
@@ -132,35 +141,46 @@ pipeline_svc = Pipeline([
 # Modeli eğitme
 pipeline_svc.fit(X_train, y_train)
 
+# Modelin doğruluğunu test etme
+y_pred = pipeline_svc.predict(X_test)
+accuracy = accuracy_score(y_test, y_pred)
+print(f"Model Doğruluğu: {accuracy * 100:.2f}%")
+
 # Çeviri fonksiyonu
+
+
 def translate_text(text, source_language="tr", target_language="en"):
     try:
-        translated_text = GoogleTranslator(source=source_language, target=target_language).translate(text)
+        translated_text = GoogleTranslator(
+            source=source_language, target=target_language).translate(text)
         return translated_text
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Translation error: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Translation error: {str(e)}")
 
 # Tahmin fonksiyonunu güncelleme
+
+
 @app.post("/rating")
 def predict_rating(comment_data: Dict[str, str]):
     try:
         # Gelen dictionary içindeki "comment" anahtarından yorumu al
         comment = comment_data.get("comment", "")
-        
+
         # Yorumu İngilizceye çevirme
         translated_comment = translate_text(comment)
-        
+
         # Yorumun önişlenmesi
         preprocessed_comment = preprocess_text(translated_comment)
-        
+
         # Tahmin yapma
         predicted_rating = pipeline_svc.predict([preprocessed_comment])[0]
-        
+
         # Tahmin edilen rating'i dictionary içine ekleyerek döndür
-        return {"predicted_rating": str(predicted_rating)}  # Tahmin edilen rating'i string olarak dönüştür
+        # Tahmin edilen rating'i string olarak dönüştür
+        return {"predicted_rating": str(predicted_rating)}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
 
 
 @app.post("/register")
@@ -180,8 +200,6 @@ def add_user(user: dict):
         result = new_collection.insert_one(user)
         user_id = str(result.inserted_id)
         user_name = user.get('username', '')
-        print(f"Kullanıcı Bilgisi Alındı: {user}")
-        print(f"Kullanıcı Adı: {user_name}")
         return {"user_name": user_name, "user_id": user_id}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -198,10 +216,21 @@ def login(user_info: dict):
 
     if user_data and pwd_context.verify(password, user_data["password"]):
         user_id = str(user_data['_id'])
-        print(f"MongoDB'den Gelen Kullanıcı Bilgisi: {user_data}")
-        return {"message": "Giriş başarıyla gerçekleşti", "user_name": user_name, "user_id": user_id}
+        expires_delta = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        jwt_token = create_jwt_token({"sub": user_id}, expires_delta)
+        return {
+            "message": "Giriş başarıyla gerçekleşti",
+            "user_name": user_name,
+            "user_id": user_id,
+            "access_token": jwt_token,
+            "token_type": "bearer"
+        }
 
-    return {"message": "Kullanıcı adı veya şifre hatalı"}
+    raise HTTPException(
+        status_code=401,
+        detail="Geçersiz kullanıcı adı veya şifre",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
 
 # Get JWT token for authentication
 
@@ -237,19 +266,19 @@ def login_for_token(user_info: dict):
         detail="Geçersiz kullanıcı adı veya şifre",
         headers={"WWW-Authenticate": "Bearer"},
     )
-# Example protected endpoint using JWT for authentication
 
 
-# Example protected endpoint using JWT for authentication
 @app.get("/comments")
 def get_comments():
     try:
         # MongoDB'den yorumları al
         collection = db4["Comment"]
-        comments = list(collection.find({}, {"_id": 0}))  # "_id": 0, ObjectId'in gösterilmesini engeller
+        # "_id": 0, ObjectId'in gösterilmesini engeller
+        comments = list(collection.find({}, {"_id": 0}))
         return comments
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
 
 @app.post("/comments")
 def add_comment(comment_data: dict):
@@ -261,9 +290,10 @@ def add_comment(comment_data: dict):
 
         # Tahmin edilen rating'i almak için rating endpointini çağır
         predicted_rating_response = predict_rating({"comment": comment})
-        predicted_rating = predicted_rating_response.get("predicted_rating", None)
+        predicted_rating = predicted_rating_response.get(
+            "predicted_rating", None)
 
-        # MongoDB'ye yorumu ve ratingi ekleyin
+        # MongoDB'ye yorumu ve ratingi ekle
         new_collection = db4["Comment"]
         result = new_collection.insert_one({
             "place_name": place_name,
@@ -275,15 +305,28 @@ def add_comment(comment_data: dict):
 
         comment_id = str(result.inserted_id)
         print(f"Yorum Başarıyla Kaydedildi: {comment}")
+
+        # Modelin başarısını değerlendirme ve terminalde gösterme
+        # Gerçek ratingleri al
+        y_true = list(db4["Comment"].find({}, {"_id": 0, "rating": 1}))
+        y_pred = [predict_rating({"comment": c["comment"]})["predicted_rating"] for c in db4["Comment"].find(
+            {}, {"_id": 0, "comment": 1})]  # Tahmin edilen ratingler
+
+        # Gerçek ve tahmin edilen ratingler arasında doğruluk oranını hesapla
+        y_true = [int(item["rating"])
+                  for item in y_true if item["rating"] != "Değerlendirme Yok"]
+        y_pred = [int(item) for item in y_pred if item != "Değerlendirme Yok"]
+        if y_true and y_pred:  # Boş listeleri kontrol et
+            accuracy = accuracy_score(y_true, y_pred)
+            print(f"Model Doğruluğu: {accuracy * 100:.2f}%")
+
         return {"comment_id": comment_id}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 
-
-
 @app.get("/cafe")
-def discover():
+def discover_cafe():
     response = requests.get(
         f"https://maps.googleapis.com/maps/api/place/nearbysearch/json?keyword=coffee&type=cafe&location=37.8746429%2C32.4931554&radius=1500&key=AIzaSyB--nWp1tPUs48E0zPePM7eLeS4c9Ny9JE")
 
@@ -296,7 +339,7 @@ def discover():
 
 
 @app.get("/restaurant")
-def discover():
+def discover_restaurant():
     response = requests.get(
         f"https://maps.googleapis.com/maps/api/place/nearbysearch/json?keyword=konya&type=restaurant&location=37.8746429%2C32.4931554&radius=15000&key=AIzaSyB--nWp1tPUs48E0zPePM7eLeS4c9Ny9JE")
     print(response)
@@ -309,7 +352,7 @@ def discover():
 
 
 @app.get("/library")
-def discover():
+def discover_library():
     response = requests.get(
         f"https://maps.googleapis.com/maps/api/place/nearbysearch/json?keyword=kütüphane&type=library&location=37.8746429%2C32.4931554&radius=1500&key=AIzaSyB--nWp1tPUs48E0zPePM7eLeS4c9Ny9JE")
     if response.ok:
@@ -319,8 +362,9 @@ def discover():
         x = new_collection.insert_one({"data": data})
     return data
 
-
 # E-posta gönderme fonksiyonu
+
+
 def send_email(receiver_email, subject, body):
     try:
         with smtplib.SMTP("smtp.gmail.com", 587) as server:
@@ -340,279 +384,20 @@ def send_email(receiver_email, subject, body):
     except smtplib.SMTPException as e:
         print("E-posta gönderme hatası:", e)
 
-
 @app.post("/send-email")
 def send_user_email(user_info: dict):
-    new_user = {
-        "username": user_info.get("username", ""),
-        "email": user_info.get("email", ""),
-        "message": user_info.get("text", ""),
-        # You can add other user information
-    }
-
     try:
-        new_collection = db3["Mails"]  # Define the collection
+        new_user = {
+            "email": user_info.get("email", ""),
+            "message": user_info.get("text", "")
+        }
+
+        send_email(new_user["email"], "Yeni Mesaj", new_user["message"])
+
+        new_collection = db3["Mails"]
         result = new_collection.insert_one(new_user)
         user_id = str(result.inserted_id)
-        user_name = new_user.get("username", "")
-        print(f"User Information Received: {new_user}")
-        print(f"User Name: {user_name}")
-        return {"user_name": user_name, "user_id": user_id}
+        user_email = new_user.get("email", "")
+        return {"user_email": user_email, "user_id": user_id}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
-
-# ...
-
-
-# @app.post("/comments")
-# def add_comment(comment_data: dict):
-#     comment = comment_data.get("comment", "")
-#     username = comment_data.get("username", "")
-#     place_name = comment_data.get("place_name", "")
-
-#     # MongoDB'ye yorumu ekleyin
-#     new_collection = db4["Comment"]
-#     try:
-#         result = new_collection.insert_one({
-#             "place_name": place_name,
-#             "username": username,
-#             "comment": comment,
-#             "timestamp": datetime.utcnow()
-#         })
-
-#         comment_id = str(result.inserted_id)
-#         print(f"Yorum Başarıyla Kaydedildi: {comment}")
-#         return {"comment_id": comment_id}
-#     except Exception as e:
-#         raise HTTPException(status_code=500, detail=str(e))
-
-
-
-
-# # Yorumları kaydetmek için yeni endpoint
-
-
-# @app.get("/comments")
-# def get_comments():
-#     try:
-#         # MongoDB'den tüm yorumları al
-#         comments_collection = db4["Comment"]
-#         comments = comments_collection.find({}, {"_id": 0})
-
-#         # Yorumları liste halinde döndür
-#         return list(comments)
-#     except Exception as e:
-#         raise HTTPException(status_code=500, detail=str(e))
-
-# # Yorumları kaydetmek için yeni endpoint
-
-
-# # Kelimeleri ayıklama ve temizleme için NLTK'nin İngilizce durdurma kelimelerini kullanma
-# def preprocess_text(text):
-#     stop_words = set(stopwords.words('english'))
-#     words = word_tokenize(text)
-#     return [word.lower() for word in words if word.isalpha() and word.lower() not in stop_words]
-
-
-# # Modeli eğitme
-# def train_classifier():
-#     data = pd.read_csv('yorumlar.csv')
-
-#     documents = [(preprocess_text(row['Review Text']), row['Rating'])
-#                  for _, row in data.iterrows()]
-#     random.shuffle(documents)
-
-#     all_words = nltk.FreqDist(
-#         [word for (words, _) in documents for word in words])
-#     word_features = list(all_words.keys())[:2000]
-
-#     def document_features(document):
-#         document_words = set(document)
-#         features = {}
-#         for word in word_features:
-#             features[f'contains({word})'] = (word in document_words)
-#         return features
-
-#     featuresets = [(document_features(d), c) for (d, c) in documents]
-
-#     classifier = SklearnClassifier(MultinomialNB())
-#     classifier.train(featuresets)
-
-#     return classifier
-
-
-# classifier = train_classifier()
-
-
-# @app.post("/comments")
-# def add_comment(comment_data: dict):
-#     comment = comment_data.get("comment", "")
-#     username = comment_data.get("username", "")
-#     place_name = comment_data.get("place_name", "")
-#     print(comment, "orjin yorum")
-#     print(type(comment))
-
-#     try:
-#         # Yorumu işleme
-#         translated_comment = Translator().translate(comment, dest='en').text
-#         preprocessed_comment = preprocess_text(translated_comment)
-#         features = document_features(preprocessed_comment)
-#         predicted_rating = classifier.classify(features)
-#         print(predicted_rating, "rate")
-
-#         # MongoDB'ye yorumu ekleme
-#         new_collection = db4["Comment"]
-#         result = new_collection.insert_one({
-#             "place_name": place_name,
-#             "username": username,
-#             "comment": comment,
-#             "predicted_rating": predicted_rating,
-#             "timestamp": datetime.utcnow()
-#         })
-
-#         comment_id = str(result.inserted_id)
-#         print(f"Yorum Başarıyla Kaydedildi: {comment}")
-#         return {"comment_id": comment_id}
-#     except Exception as e:
-#         print(f"Yorum ekleme hatası: {e}")  # Hata detayını konsola yazdır
-#         raise HTTPException(
-#             status_code=500, detail="Yorum ekleme işlemi sırasında bir hata oluştu")
-#     finally:
-#         # Her istek arasında 2 saniye bekleyin
-#         time.sleep(2)
-
-
-# @app.post("/comments")
-# def add_comment(comment_data: dict):
-#     comment = comment_data.get("comment", "")
-#     username = comment_data.get("username", "")
-#     place_name = comment_data.get("place_name", "")
-
-#     # MongoDB'ye yorumu ekleyin
-#     new_collection = db4["Comment"]
-#     try:
-#         result = new_collection.insert_one({
-#             "place_name": place_name,
-#             "username": username,
-#             "comment": comment,
-#             "timestamp": datetime.utcnow()
-#         })
-
-#         comment_id = str(result.inserted_id)
-#         print(f"Yorum Başarıyla Kaydedildi: {comment}")
-#         return {"comment_id": comment_id}
-#     except Exception as e:
-#         raise HTTPException(status_code=500, detail=str(e))
-
-
-###############################################
-###################    AI    ##################
-###############################################
-
-# # Veri setini yükleme
-# data = pd.read_csv('yorumlar.csv')
-
-# # Kelimeleri ayıklama ve temizleme
-# stop_words = set(stopwords.words('english'))
-
-# def preprocess_text(text):
-#     words = word_tokenize(text)
-#     return [word.lower() for word in words if word.isalpha() and word.lower() not in stop_words]
-
-# # Veri setini işleme
-# documents = [(preprocess_text(row['Review Text']), row['Rating']) for _, row in data.iterrows()]
-# random.shuffle(documents)
-
-# # Öznitelik çıkarma
-# all_words = nltk.FreqDist([word for (words, _) in documents for word in words])
-# word_features = list(all_words.keys())[:2000]
-
-# def document_features(document):
-#     document_words = set(document)
-#     features = {}
-#     for word in word_features:
-#         features[f'contains({word})'] = (word in document_words)
-#     return features
-
-# featuresets = [(document_features(d), c) for (d,c) in documents]
-
-# # Modeli eğitme
-# classifier = SklearnClassifier(MultinomialNB())
-# classifier.train(featuresets)
-
-# # Kullanıcıdan yorum isteme ve çeviri yapma
-# user_comment = input("Yorumunuzu girin: ")
-
-# translator = Translator()
-# translated_comment = translator.translate(user_comment, dest='en').text
-
-# preprocessed_comment = preprocess_text(translated_comment)
-# features = document_features(preprocessed_comment)
-# predicted_rating = classifier.classify(features)
-
-# # Tahmin edilen puanı ekrana yazdırma
-# print("Yaptığınız yorum için tahmini puan:", predicted_rating)
-
-
-# # Endpoint isimleri ve bölge koordinatları
-# endpoints = {
-#     "cafe": {"keyword": "coffee", "type": "cafe", "radius": 1500},
-#     "restaurant": {"keyword": "konya", "type": "restaurant", "radius": 1500},
-#     "library": {"keyword": "kütüphane", "type": "library", "radius": 1500},
-#     # Diğer alanlar eklenmeli...
-# }
-
-# # MongoDB koleksiyon adları
-# collection_names = ["area1", "area2", "area3", "area4",
-#                     "area5", "area6", "area7", "area8", "area9", "area10"]
-
-# # Konya koordinatları
-# konya_coords = (37.8746429, 32.4931554)
-
-# # Endpoint'leri işleyen fonksiyon
-
-
-# def process_endpoint(endpoint_name, keyword, place_type, radius, center_coords):
-#     # Konya bölgesini 10'a bölerek istekleri yap
-#     for i in range(1, 11):
-#         start_angle = (i - 1) * 36
-#         end_angle = i * 36
-#         endpoint_coords = generate_coords(
-#             center_coords, start_angle, end_angle)
-
-#         for j in range(10):
-#             response = requests.get(
-#                 f"https://maps.googleapis.com/maps/api/place/nearbysearch/json?keyword={keyword}&type={place_type}&location={endpoint_coords[0]}%2C{endpoint_coords[1]}&radius={radius}&key=AIzaSyB--nWp1tPUs48E0zPePM7eLeS4c9Ny9JE")
-
-#             if response.ok:
-#                 data = response.json()
-#                 if data.get("status") == "OK":
-#                     new_collection = db1[collection_names[i - 1]]
-#                     x = new_collection.insert_one({"data": data})
-#                 else:
-#                     print(
-#                         f"No results for endpoint {endpoint_name}, area {i}, attempt {j + 1}")
-#             else:
-#                 print(
-#                     f"Error in request for endpoint {endpoint_name}, area {i}, attempt {j + 1}. Status code: {response.status_code}")
-
-# Koordinatları hesaplayan yardımcı fonksiyon
-
-
-# def generate_coords(center_coords, start_angle, end_angle):
-#     radius = 15000  # Mesela, 15000 metre yarıçapında bir alan alıyoruz
-#     center_lat, center_lon = center_coords
-
-#     # Hesaplamaları yap ve yeni koordinatları döndür
-#     # Bu örnek, basit bir hesaplama olabilir ve geliştirilmeye açık olabilir
-#     # Ayrıca, dönüşü yapılacak koordinatların uygun bir format içinde olması önemlidir
-#     new_lat = center_lat + radius * 0.000008983 * (start_angle + end_angle) / 2
-#     new_lon = center_lon + radius * 0.000008983 * (start_angle + end_angle) / 2
-
-#     return new_lat, new_lon
-
-# # Her bir endpoint için işlem yap
-# for endpoint_name, endpoint_data in endpoints.items():
-#     process_endpoint(
-#         endpoint_name, endpoint_data["keyword"], endpoint_data["type"], endpoint_data["radius"], konya_coords)

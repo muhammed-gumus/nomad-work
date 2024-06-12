@@ -1,9 +1,9 @@
-import Navbar from "@/components/Navbar";
+// layout.tsx
 import "./globals.css";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import SessionManager from "@/components/SessionManager/page";
-import { AverageRateProvider } from "../context/AverageRateContext"
+import { AverageRateProvider } from "../context/AverageRateContext";
+import ClientOnly from "@/components/ClientOnly"; // Yeni client-side bileşen
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -20,11 +20,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="bg-yellow-400">
-        <SessionManager />
-        <Navbar />
-        <AverageRateProvider>
-          {children}
-        </AverageRateProvider>
+        <ClientOnly>
+          <AverageRateProvider>
+            {children}
+          </AverageRateProvider>
+        </ClientOnly>
       </body>
     </html>
   );

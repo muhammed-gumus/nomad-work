@@ -1,20 +1,24 @@
-"use client";
+// SessionManager.tsx
+"use client"; // Bu direktif bileşenin client-side çalışacağını belirtir
 import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
-const SessionManager: React.FC = () => {
+interface SessionManagerProps {
+  onLogout: () => void;
+}
+
+const SessionManager: React.FC<SessionManagerProps> = ({ onLogout }) => {
+  const router = useRouter();
+
   useEffect(() => {
     const handleUserInteraction = () => {
-      // Kullanıcı etkileşimi algılandığında, oturumu güncelleme işlemleri burada yapılabilir
-      localStorage.setItem("lastInteractionTime", Date.now().toString()); // Son etkileşim zamanını güncelle
-
+      localStorage.setItem("lastInteractionTime", Date.now().toString());
       console.log("Kullanıcı etkileşimde bulundu");
     };
 
-    // Kullanıcı etkileşimini izleme
     window.addEventListener("mousemove", handleUserInteraction);
     window.addEventListener("keypress", handleUserInteraction);
 
-    // Temizleme işlemi
     return () => {
       window.removeEventListener("mousemove", handleUserInteraction);
       window.removeEventListener("keypress", handleUserInteraction);
@@ -28,20 +32,21 @@ const SessionManager: React.FC = () => {
         10
       );
       const currentTime = Date.now();
-      const sessionTimeout = 10 * 60 * 1000; // 5 dakika
+      const sessionTimeout = 3 * 60 * 1000; // 3 dakika
 
       if (currentTime - lastInteractionTime > sessionTimeout) {
-        // Oturumu sonlandır
         localStorage.removeItem("jwtToken");
         localStorage.removeItem("username");
-        localStorage.removeItem("lastInteractionTime"); // Son etkileşim zamanını da sil
+        localStorage.removeItem("lastInteractionTime");
         console.log("Oturum süresi aşıldı, oturum sonlandırıldı.");
+        onLogout(); // Oturum sonlandırıldığında callback fonksiyonunu çağır
+        router.push("/Login"); // Oturum süresi dolduğunda kullanıcıyı login sayfasına yönlendir
       }
     };
 
-    const interval = setInterval(checkSession, 60000); // Her dakika kontrol et
+    const interval = setInterval(checkSession, 1000); // Her saniye kontrol et
     return () => clearInterval(interval);
-  }, []);
+  }, [router, onLogout]);
 
   return null;
 };
