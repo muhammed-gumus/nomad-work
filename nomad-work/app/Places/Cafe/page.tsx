@@ -27,7 +27,7 @@ interface Comment {
   place_name: string;
   username: string;
   comment: string;
-  rating: string;  // Backend'den string olarak geldiği için burada da string
+  rating: string;
 }
 
 interface CafeProps {
@@ -55,34 +55,30 @@ const Page: React.FC<CafeProps> = ({ sortByRating, sortByNomadRating, showOnlyOp
 
         let sortedPlaces = placesData.results;
 
-        // Sıralama algoritması
         sortedPlaces = sortedPlaces.sort((a: Cafe, b: Cafe) => {
           let result = 0;
 
-          // Google rating'e göre sıralama
           if (sortByRating) {
             const aRating = a.rating || 0;
             const bRating = b.rating || 0;
             result = bRating - aRating;
           }
 
-          // Eğer Google rating eşitse veya sıralama yapılmamışsa Nomad rating'e göre sıralama
           if (sortByNomadRating && result === 0) {
             const aNomadRating = parseFloat(getAverageRating(a.name));
             const bNomadRating = parseFloat(getAverageRating(b.name));
             if (!isNaN(aNomadRating) && !isNaN(bNomadRating)) {
               result = bNomadRating - aNomadRating;
             } else if (!isNaN(aNomadRating)) {
-              result = -1; // a'nın değerlendirmesi var ama b'nin yok
+              result = -1;
             } else if (!isNaN(bNomadRating)) {
-              result = 1; // b'nin değerlendirmesi var ama a'nın yok
+              result = 1;
             }
           }
 
           return result;
         });
 
-        // Sıralama tamamlandıktan sonra, eğer her iki sıralama seçeneği de seçiliyorsa, toplam ratinglere göre tekrar sırala
         if (sortByRating && sortByNomadRating) {
           sortedPlaces = sortedPlaces.sort((a: Cafe, b: Cafe) => {
             const aTotalRating = (a.rating || 0) + parseFloat(getAverageRating(a.name)) || 0;
@@ -116,7 +112,7 @@ const Page: React.FC<CafeProps> = ({ sortByRating, sortByNomadRating, showOnlyOp
 
     const totalRating = placeComments.reduce((sum, comment) => sum + parseFloat(comment.rating), 0);
     const averageRating = totalRating / placeComments.length;
-    return isNaN(averageRating) ? "Değerlendirme Yok" : averageRating.toFixed(2);  // Ortalama rating'i 2 ondalık basamakla göster
+    return isNaN(averageRating) ? "Değerlendirme Yok" : averageRating.toFixed(2);
   };
 
   if (loading) {
@@ -152,7 +148,7 @@ const Page: React.FC<CafeProps> = ({ sortByRating, sortByNomadRating, showOnlyOp
               {place.opening_hours?.open_now ? "Açık" : "Kapalı"}
             </p>
             <p className="my-4">Google Değerlendirme: {place.rating}</p>
-            <p className="my-4">Nomad Değerlendirme: {getAverageRating(place.name)}</p> {/* Ortalama yorum rating eklenmesi */}
+            <p className="my-4">Nomad Değerlendirme: {getAverageRating(place.name)}</p>
           </div>
         </Link>
       ))}

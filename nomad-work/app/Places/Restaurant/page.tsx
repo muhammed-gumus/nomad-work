@@ -25,7 +25,7 @@ interface Comment {
   place_name: string;
   username: string;
   comment: string;
-  rating: string;  // Backend'den string olarak geldiği için burada da string
+  rating: string;
 }
 
 interface RestaurantProps {
@@ -37,7 +37,7 @@ interface RestaurantProps {
 const Restaurant: React.FC<RestaurantProps> = ({ sortByRating, showOnlyOpen, sortByNomadRating }) => {
   const [places, setPlaces] = useState<Restaurant[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [comments, setComments] = useState<Comment[]>([]); // Yorumları tutmak için bir state tanımla
+  const [comments, setComments] = useState<Comment[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -51,7 +51,7 @@ const Restaurant: React.FC<RestaurantProps> = ({ sortByRating, showOnlyOpen, sor
         const commentsData = await commentsResponse.data;
 
         setPlaces(data.results);
-        setComments(commentsData); // Yorumları state'e ekle
+        setComments(commentsData);
         setLoading(false);
       } catch (error) {
         console.error("Error fetching data:", error);

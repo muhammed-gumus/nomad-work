@@ -12,17 +12,13 @@ from email.mime.multipart import MIMEMultipart
 from config import MONGO_URI, GMAIL_SENDER_EMAIL, GMAIL_SENDER_PASSWORD
 from typing import Union
 import string
-# Çeviri için deep_translator kütüphanesi
 from deep_translator import GoogleTranslator
-
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.model_selection import train_test_split
-
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.svm import LinearSVC
 from sklearn.pipeline import Pipeline
 from sklearn.model_selection import train_test_split
-
 import pandas as pd
 import nltk
 from nltk.tokenize import word_tokenize
@@ -33,7 +29,6 @@ import random
 import time
 import requests
 
-# MongoDB connections
 myclient = MongoClient(
     "mongodb+srv://muhammed-gumus:Mami040953@muhammedgumus.80fpuqf.mongodb.net/?retryWrites=true&w=majority")
 
@@ -42,10 +37,8 @@ db2 = myclient["Users"]
 db3 = myclient["Mails"]
 db4 = myclient["Comments"]
 
-# FastAPI app
 app = FastAPI()
 
-# CORS middleware
 origins = ["*"]
 app.add_middleware(
     CORSMiddleware,
@@ -55,21 +48,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Security
 SECRET_KEY = "veryStrongKey!"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
-# Password hashing
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-# OAuth2 scheme for token
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
-# Kullanıcı bilgilerini depolamak için bir veri yapısı
 users_db: Dict[str, dict] = {}
-
-# Dependency to get the current user
 
 
 def get_current_user(token: str = Depends(oauth2_scheme)):
@@ -96,57 +83,44 @@ def check_existing_user(email: str, username: str):
     existing_username = collection.find_one({"username": username})
 
     if existing_email or existing_username:
-        return True  # User already exists
+        return True
     else:
         return False
 
 
-# Türkçe stopwords ve stemmer yükleme
 nltk.download('stopwords')
 stop_words = set(stopwords.words('english'))
 stemmer = SnowballStemmer("english")
 
-# Metin ön işleme fonksiyonunu güncelleme
-
 
 def preprocess_text(text):
-    # Küçük harfe dönüştürme
     text = text.lower()
-    # Özel karakterleri temizleme ve stopwords'leri kaldırma
     words = text.split()
     words = [stemmer.stem(word)
              for word in words if word not in stop_words and word.isalpha()]
     return ' '.join(words)
 
 
-# Veri setini yükleme
 data = pd.read_csv('/Users/muhammedgumus/Desktop/nomad/nomad-work/nomad-work/backend/yorumlar.csv',
                    usecols=['Review Text', 'Rating'])
-data = data.sample(frac=1, random_state=42)  # Veriyi karıştırma
+data = data.sample(frac=1, random_state=42)
 
-# Metin ön işleme ve model oluşturma
 X = data['Review Text'].apply(preprocess_text)
 y = data['Rating']
 
-# Veri setini eğitim ve test setlerine ayırma
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.2, random_state=42)
 
-# Pipeline oluşturma ve modeli eğitme (SVM kullanarak)
 pipeline_svc = Pipeline([
     ('vect', TfidfVectorizer(ngram_range=(1, 2))),
     ('clf', LinearSVC())
 ])
 
-# Modeli eğitme
 pipeline_svc.fit(X_train, y_train)
 
-# Modelin doğruluğunu test etme
 y_pred = pipeline_svc.predict(X_test)
 accuracy = accuracy_score(y_test, y_pred)
 print(f"Model Doğruluğu: {accuracy * 100:.2f}%")
-
-# Çeviri fonksiyonu
 
 
 def translate_text(text, source_language="tr", target_language="en"):
@@ -158,26 +132,18 @@ def translate_text(text, source_language="tr", target_language="en"):
         raise HTTPException(
             status_code=500, detail=f"Translation error: {str(e)}")
 
-# Tahmin fonksiyonunu güncelleme
-
 
 @app.post("/rating")
 def predict_rating(comment_data: Dict[str, str]):
     try:
-        # Gelen dictionary içindeki "comment" anahtarından yorumu al
         comment = comment_data.get("comment", "")
 
-        # Yorumu İngilizceye çevirme
         translated_comment = translate_text(comment)
 
-        # Yorumun önişlenmesi
         preprocessed_comment = preprocess_text(translated_comment)
 
-        # Tahmin yapma
         predicted_rating = pipeline_svc.predict([preprocessed_comment])[0]
 
-        # Tahmin edilen rating'i dictionary içine ekleyerek döndür
-        # Tahmin edilen rating'i string olarak dönüştür
         return {"predicted_rating": str(predicted_rating)}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -185,16 +151,13 @@ def predict_rating(comment_data: Dict[str, str]):
 
 @app.post("/register")
 def add_user(user: dict):
-    # Check if the email or username already exists
     if check_existing_user(user["email"], user["username"]):
         raise HTTPException(
             status_code=400, detail="Email or username already exists")
 
-    # Şifreyi depolamadan önce hashle
     hashed_password = pwd_context.hash(user["password"])
     user["password"] = hashed_password
 
-    # Her kullanıcı için yeni bir belge oluştur
     new_collection = db2["User"]
     try:
         result = new_collection.insert_one(user)
@@ -210,7 +173,6 @@ def login(user_info: dict):
     user_name = user_info.get('username', '')
     password = user_info.get('password', '')
 
-    # MongoDB üzerinde kullanıcı bilgilerini sorgula
     collection = db2["User"]
     user_data = collection.find_one({"username": user_name})
 
@@ -231,8 +193,6 @@ def login(user_info: dict):
         detail="Geçersiz kullanıcı adı veya şifre",
         headers={"WWW-Authenticate": "Bearer"},
     )
-
-# Get JWT token for authentication
 
 
 def create_jwt_token(data: dict, expires_delta: Union[timedelta, None] = None):
@@ -271,9 +231,7 @@ def login_for_token(user_info: dict):
 @app.get("/comments")
 def get_comments():
     try:
-        # MongoDB'den yorumları al
         collection = db4["Comment"]
-        # "_id": 0, ObjectId'in gösterilmesini engeller
         comments = list(collection.find({}, {"_id": 0}))
         return comments
     except Exception as e:
@@ -283,22 +241,19 @@ def get_comments():
 @app.post("/comments")
 def add_comment(comment_data: dict):
     try:
-        # Yorum bilgilerini al
         comment = comment_data.get("comment", "")
         place_name = comment_data.get("place_name", "")
         username = comment_data.get("username", "")
 
-        # Tahmin edilen rating'i almak için rating endpointini çağır
         predicted_rating_response = predict_rating({"comment": comment})
         predicted_rating = predicted_rating_response.get(
             "predicted_rating", None)
 
-        # MongoDB'ye yorumu ve ratingi ekle
         new_collection = db4["Comment"]
         result = new_collection.insert_one({
             "place_name": place_name,
             "username": username,
-            "comment": comment,  # Orijinal Türkçe yorum kaydedilecek
+            "comment": comment,
             "rating": predicted_rating,
             "timestamp": datetime.utcnow()
         })
@@ -306,17 +261,14 @@ def add_comment(comment_data: dict):
         comment_id = str(result.inserted_id)
         print(f"Yorum Başarıyla Kaydedildi: {comment}")
 
-        # Modelin başarısını değerlendirme ve terminalde gösterme
-        # Gerçek ratingleri al
         y_true = list(db4["Comment"].find({}, {"_id": 0, "rating": 1}))
         y_pred = [predict_rating({"comment": c["comment"]})["predicted_rating"] for c in db4["Comment"].find(
-            {}, {"_id": 0, "comment": 1})]  # Tahmin edilen ratingler
+            {}, {"_id": 0, "comment": 1})]
 
-        # Gerçek ve tahmin edilen ratingler arasında doğruluk oranını hesapla
         y_true = [int(item["rating"])
                   for item in y_true if item["rating"] != "Değerlendirme Yok"]
         y_pred = [int(item) for item in y_pred if item != "Değerlendirme Yok"]
-        if y_true and y_pred:  # Boş listeleri kontrol et
+        if y_true and y_pred:
             accuracy = accuracy_score(y_true, y_pred)
             print(f"Model Doğruluğu: {accuracy * 100:.2f}%")
 
@@ -333,7 +285,6 @@ def discover_cafe():
     if response.ok:
         data = response.json()
         new_collection = db1["Cafe"]
-        # "data" adlı bir anahtarla veriyi ekledik
         x = new_collection.insert_one({"data": data})
     return data
 
@@ -346,7 +297,6 @@ def discover_restaurant():
     if response.ok:
         data = response.json()
         new_collection = db1["Restaurant"]
-        # "data" adlı bir anahtarla veriyi ekledik
         x = new_collection.insert_one({"data": data})
     return data
 
@@ -358,11 +308,8 @@ def discover_library():
     if response.ok:
         data = response.json()
         new_collection = db1["Library"]
-        # "data" adlı bir anahtarla veriyi ekledik
         x = new_collection.insert_one({"data": data})
     return data
-
-# E-posta gönderme fonksiyonu
 
 
 def send_email(receiver_email, subject, body):
@@ -383,6 +330,7 @@ def send_email(receiver_email, subject, body):
             print("E-posta gönderildi.")
     except smtplib.SMTPException as e:
         print("E-posta gönderme hatası:", e)
+
 
 @app.post("/send-email")
 def send_user_email(user_info: dict):

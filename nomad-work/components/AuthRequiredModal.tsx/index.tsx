@@ -16,12 +16,11 @@ const AuthRequiredModal: React.FC<AuthRequiredModalProps> = ({
   const [zIndex, setZIndex] = React.useState<number>(-1);
 
   React.useEffect(() => {
-    // isOpen durumuna bağlı olarak z-index değerini ayarla
     setZIndex(isOpen ? 1 : -1);
   }, [isOpen]);
 
   const handleRedirect = () => {
-    router.push("/Login"); // Kullanıcıyı login sayfasına yönlendir
+    router.push("/Login");
   };
 
   return (

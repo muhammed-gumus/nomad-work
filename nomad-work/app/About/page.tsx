@@ -53,10 +53,9 @@ const teamMembers = [
     linkedin: "https://www.linkedin.com/in/can-sirin-web/",
     mail: "mailto:cansirin12@gmail.com",
   },
-  // Add more team members as needed
 ];
 
-const MAX_DESC_LENGTH = 120; // Set the maximum length for the description text
+const MAX_DESC_LENGTH = 120;
 
 const truncateDesc = (desc: any) => {
   if (desc.length > MAX_DESC_LENGTH) {
@@ -81,7 +80,7 @@ const Page: React.FC = () => {
     } else {
       setIsAuthRequiredModalOpen(true);
     }
-  }, []); // Boş dependency array, useEffect'in sadece bir kez çalışmasını sağlar
+  }, []);
 
   const handleAuthModalClose = () => {
     setIsAuthModalOpen(false);

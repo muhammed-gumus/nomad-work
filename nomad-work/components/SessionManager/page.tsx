@@ -1,5 +1,5 @@
 // SessionManager.tsx
-"use client"; // Bu direktif bileşenin client-side çalışacağını belirtir
+"use client";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
@@ -39,12 +39,12 @@ const SessionManager: React.FC<SessionManagerProps> = ({ onLogout }) => {
         localStorage.removeItem("username");
         localStorage.removeItem("lastInteractionTime");
         console.log("Oturum süresi aşıldı, oturum sonlandırıldı.");
-        onLogout(); // Oturum sonlandırıldığında callback fonksiyonunu çağır
-        router.push("/Login"); // Oturum süresi dolduğunda kullanıcıyı login sayfasına yönlendir
+        onLogout(); 
+        router.push("/Login"); 
       }
     };
 
-    const interval = setInterval(checkSession, 1000); // Her saniye kontrol et
+    const interval = setInterval(checkSession, 1000);
     return () => clearInterval(interval);
   }, [router, onLogout]);
 

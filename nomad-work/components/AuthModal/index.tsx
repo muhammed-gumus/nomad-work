@@ -12,7 +12,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
   const [isConfirmed, setIsConfirmed] = useState(false);
 
   useEffect(() => {
-    // localStorage'dan kontrol et
     const isModalConfirmed = localStorage.getItem('isModalConfirmed');
     if (isModalConfirmed === 'true') {
       setIsConfirmed(true);

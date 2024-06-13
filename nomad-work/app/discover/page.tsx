@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import Cafe from "../Places/Cafe/page";
-import Library from "../Places/Library/page"; // Library import edildi
+import Library from "../Places/Library/page";
 import Restaurant from "../Places/Restaurant/page";
 import AuthModal from "@/components/AuthModal";
 import AuthRequiredModal from "@/components/AuthRequiredModal.tsx";
@@ -42,22 +42,22 @@ const Page: React.FC = () => {
     setSortByRating(!sortByRating);
   };
 
-  const handleShowOnlyOpen = () => {
-    setShowOnlyOpen(!showOnlyOpen);
-  };
-
   const handleSortByNomadRating = () => {
     setSortByNomadRating(!sortByNomadRating);
   };
 
-  // Kategori değiştiğinde checkbox'ları sıfırla
+  const handleShowOnlyOpen = () => {
+    setShowOnlyOpen(!showOnlyOpen);
+  };
+
+  
+
   useEffect(() => {
     setSortByRating(false);
     setShowOnlyOpen(false);
     setSortByNomadRating(false);
   }, [selectedCategory]);
 
-  // Sayfa scroll edildiğinde renk değişimini izle
   useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY > 0) {

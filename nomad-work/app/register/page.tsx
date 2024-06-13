@@ -36,34 +36,28 @@ const RegisterPage: React.FC = () => {
   }, [isRegistrationSuccess]);
 
   const isPasswordValid = (password: string): boolean => {
-    // Şifrenin en az 8 karakter olup olmadığını kontrol et
     if (password.length < 8) {
       return false;
     }
 
-    // Şifrede en az 1 sayı bulunup bulunmadığını kontrol et
     if (!/\d/.test(password)) {
       return false;
     }
 
-    // Şifrede en az 1 büyük harf bulunup bulunmadığını kontrol et
     if (!/[A-Z]/.test(password)) {
       return false;
     }
 
-    // Şifrede en az 1 (. , - _) işaretlerinden birinin bulunup bulunmadığını kontrol et
     if (!/[.,\-_]/.test(password)) {
       return false;
     }
 
-    // Tüm kontrolleri geçiyorsa şifre uygun
     return true;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Şifre kontrolü ekleyin
     if (!isPasswordValid(password)) {
       setError(
         "Şifre uygun değil. En az 8 karakter, 1 sayı, 1 büyük harf ve bir özel karakter içermelidir."
@@ -105,7 +99,6 @@ const RegisterPage: React.FC = () => {
         setEmail("");
         setPassword("");
         setIsRegistrationSuccess(true);
-        // Başarı durumunda hata mesajını temizle
         setError(null);
       }
     } catch (error) {

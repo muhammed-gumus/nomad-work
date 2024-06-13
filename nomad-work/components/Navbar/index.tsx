@@ -5,10 +5,10 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 interface NavbarProps {
-  isUserLoggedOut?: boolean; // Prop'u opsiyonel yapıyoruz
+  isUserLoggedOut?: boolean; 
 }
 
-const Navbar: React.FC<NavbarProps> = ({ isUserLoggedOut = false }) => { // Varsayılan değer ekliyoruz
+const Navbar: React.FC<NavbarProps> = ({ isUserLoggedOut = false }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [loggedInUsername, setLoggedInUsername] = useState<string | null>(null);
   const router = useRouter();
@@ -61,7 +61,6 @@ const Navbar: React.FC<NavbarProps> = ({ isUserLoggedOut = false }) => { // Vars
     };
   }, [isMenuOpen]);
 
-  // isUserLoggedOut durumuna göre loggedInUsername'i null yap
   useEffect(() => {
     if (isUserLoggedOut) {
       setLoggedInUsername(null);

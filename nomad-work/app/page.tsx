@@ -10,7 +10,6 @@ export default function Home() {
   const [isAuthRequiredModalOpen, setIsAuthRequiredModalOpen] = useState(false);
 
   useEffect(() => {
-    // localStorage'dan jwtToken ve username kontrolü yap
     const jwtToken = localStorage.getItem("jwtToken");
     const username = localStorage.getItem("username");
 
@@ -20,7 +19,7 @@ export default function Home() {
     } else {
       setIsAuthRequiredModalOpen(true);
     }
-  }, []); // Boş dependency array, useEffect'in sadece bir kez çalışmasını sağlar
+  }, []);
 
   const handleAuthModalClose = () => {
     setIsAuthModalOpen(false);

@@ -39,7 +39,6 @@ function MyComponent({ lat, lng, width, height }: MapProps) {
     setMap(null);
   }, []);
 
-  // 'map' değişkenini okuyorsunuz
   console.log(map);
 
   return isLoaded ? (
@@ -51,7 +50,7 @@ function MyComponent({ lat, lng, width, height }: MapProps) {
   >
     <Marker
       position={{ lat, lng }}
-      animation={google.maps.Animation.BOUNCE} // Example animation, you can use DROP or BOUNCE
+      animation={google.maps.Animation.BOUNCE} 
     />
   </GoogleMap>
   ) : (

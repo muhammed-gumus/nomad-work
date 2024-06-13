@@ -1,17 +1,16 @@
 import React from "react";
 import Link from "next/link";
 
-const titleText1 = "Nomad"; // Kullanmak istediğiniz özel metin
+const titleText1 = "Nomad";
 const titleText2 = "Work";
 const descText =
   "Nomad Work ile en iyi çalışma mekanlarını keşfedin, değerlendirin ve yapay zeka destekli puanlamalarla seçiminizi yapın. Çalışma tarzınızı özgürleştirin!"; // Kullanmak istediğiniz özel metin
 
-const customImageUrl = "images/banner.jpg"; // Kullanmak istediğiniz özel görsel URL
+const customImageUrl = "images/banner.jpg";
 
 const Banner: React.FC = () => {
   return (
     <div className="flex flex-col items-center justify-center mt-24 px-6 md:flex-row md:justify-around md:px-20">
-      {/* Metin ve Butonlar */}
       <div className="flex flex-col items-center text-center md:items-start md:text-left md:w-1/2">
         <div className="mb-6">
           <p className="text-6xl font-bold">{titleText1}</p>
@@ -27,7 +26,6 @@ const Banner: React.FC = () => {
         </Link>
       </div>
 
-      {/* Özel Görsel (Tablet ve Büyük Ekranlarda) */}
       <div className="hidden md:block flex items-center justify-center md:w-1/3">
         <img
           src={customImageUrl}

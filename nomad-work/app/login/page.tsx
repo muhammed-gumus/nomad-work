@@ -56,7 +56,6 @@ const LoginPage: React.FC = () => {
         setError(null);
         setUser(loginData.user_name);
 
-        // JWT'yi localStorage'e kaydet
         setLocalToken(loginData.access_token);
         setLocalUserName(loginData.user_name);
 
@@ -71,25 +70,19 @@ const LoginPage: React.FC = () => {
   };
 
   const handleLogout = () => {
-    // Kullanıcının oturumunu sonlandır
     setIsAuthenticated(false);
     setUser(null);
 
-    // localStorage'deki ilgili bilgileri temizle
     localStorage.removeItem("jwtToken");
     localStorage.removeItem("username");
 
-    // localStorage'daki isModalConfirmed değişkenini false olarak güncelle
     setIsModalConfirmed(false);
 
-    // İstediğiniz yönlendirmeyi yapabilirsiniz
     router.push("/Login", { scroll: false });
 
-    // Sayfa yönlendikten sonra eğer sayfayı refresh etmek istiyorsanız
     window.location.reload();
   };
 
-  // Eğer kullanıcı zaten oturum açık değilse giriş formunu göster
   if (!isAuthenticated) {
     return (
       <div className="flex flex-col items-center justify-between py-4 mt-8">
@@ -149,7 +142,6 @@ const LoginPage: React.FC = () => {
     );
   }
 
-  // Eğer kullanıcı zaten oturum açık ise çıkış yap butonunu göster
   return (
     <div className="flex flex-col items-center justify-center py-4 mt-8">
       <div className="flex flex-col px-8 py-6 items-center justify-center mt-8 bg-white bg-opacity-50 gap-4 rounded-lg w-2/5">

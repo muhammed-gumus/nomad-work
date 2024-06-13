@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Link from "next/link";
-import { useAverageRate } from "@/context/AverageRateContext";  // AverageRateContext'i ekle
+import { useAverageRate } from "@/context/AverageRateContext"; 
 
 const LoadingSpinner: React.FC = () => (
   <div className="flex items-center justify-center mt-8">
@@ -39,7 +39,7 @@ const Page: React.FC<LibraryProps> = ({ sortByRating, sortByNomadRating, showOnl
   const [places, setPlaces] = useState<Library[]>([]);
   const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const { averageRates } = useAverageRate();  // averageRates'i kullan
+  const { averageRates } = useAverageRate();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -54,34 +54,30 @@ const Page: React.FC<LibraryProps> = ({ sortByRating, sortByNomadRating, showOnl
 
         let sortedPlaces = placesData.results;
 
-        // Sıralama algoritması
         sortedPlaces = sortedPlaces.sort((a: Library, b: Library) => {
           let result = 0;
 
-          // Google rating'e göre sıralama
           if (sortByRating) {
             const aRating = a.rating || 0;
             const bRating = b.rating || 0;
             result = bRating - aRating;
           }
 
-          // Eğer Google rating eşitse veya sıralama yapılmamışsa Nomad rating'e göre sıralama
           if (sortByNomadRating && result === 0) {
             const aNomadRating = parseFloat(getAverageRating(a.name));
             const bNomadRating = parseFloat(getAverageRating(b.name));
             if (!isNaN(aNomadRating) && !isNaN(bNomadRating)) {
               result = bNomadRating - aNomadRating;
             } else if (!isNaN(aNomadRating)) {
-              result = -1; // a'nın değerlendirmesi var ama b'nin yok
+              result = -1;
             } else if (!isNaN(bNomadRating)) {
-              result = 1; // b'nin değerlendirmesi var ama a'nın yok
+              result = 1;
             }
           }
 
           return result;
         });
 
-        // Sıralama tamamlandıktan sonra, eğer her iki sıralama seçeneği de seçiliyorsa, toplam ratinglere göre tekrar sırala
         if (sortByRating && sortByNomadRating) {
           sortedPlaces = sortedPlaces.sort((a: Library, b: Library) => {
             const aTotalRating = (a.rating || 0) + parseFloat(getAverageRating(a.name)) || 0;
@@ -151,7 +147,7 @@ const Page: React.FC<LibraryProps> = ({ sortByRating, sortByNomadRating, showOnl
               {place.opening_hours?.open_now ? "Açık" : "Kapalı"}
             </p>
             <p className="my-4">Google Değerlendirme: {place.rating}</p>
-            <p className="my-4">Nomad Değerlendirme: {getAverageRating(place.name)}</p> {/* Ortalama yorum rating eklenmesi */}
+            <p className="my-4">Nomad Değerlendirme: {getAverageRating(place.name)}</p>
           </div>
         </Link>
       ))}
