@@ -28,9 +28,20 @@ from sklearn.metrics import accuracy_score
 import random
 import time
 import requests
+from dotenv import load_dotenv
+import os
 
-myclient = MongoClient(
-    "mongodb+srv://muhammed-gumus:Mami040953@muhammedgumus.80fpuqf.mongodb.net/?retryWrites=true&w=majority")
+load_dotenv()
+
+# Now you can access environment variables using os.getenv
+MONGO_URI = os.getenv('MONGO_URI')
+GOOGLE_MAPS_API_KEY = os.getenv('GOOGLE_MAPS_API_KEY')
+SECRET_KEY = os.getenv('SECRET_KEY')
+GMAIL_SENDER_EMAIL = os.getenv('GMAIL_SENDER_EMAIL')
+GMAIL_SENDER_PASSWORD = os.getenv('GMAIL_SENDER_PASSWORD')
+
+myclient = MongoClient(MONGO_URI)
+
 
 db1 = myclient["Discover"]
 db2 = myclient["Users"]
@@ -48,7 +59,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-SECRET_KEY = "veryStrongKey!"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
@@ -280,7 +290,7 @@ def add_comment(comment_data: dict):
 @app.get("/cafe")
 def discover_cafe():
     response = requests.get(
-        f"https://maps.googleapis.com/maps/api/place/nearbysearch/json?keyword=coffee&type=cafe&location=37.8746429%2C32.4931554&radius=1500&key=AIzaSyB--nWp1tPUs48E0zPePM7eLeS4c9Ny9JE")
+        f"https://maps.googleapis.com/maps/api/place/nearbysearch/json?keyword=coffee&type=cafe&location=37.8746429%2C32.4931554&radius=1500&key={GOOGLE_MAPS_API_KEY}")
 
     if response.ok:
         data = response.json()
@@ -288,11 +298,10 @@ def discover_cafe():
         x = new_collection.insert_one({"data": data})
     return data
 
-
 @app.get("/restaurant")
 def discover_restaurant():
     response = requests.get(
-        f"https://maps.googleapis.com/maps/api/place/nearbysearch/json?keyword=konya&type=restaurant&location=37.8746429%2C32.4931554&radius=15000&key=AIzaSyB--nWp1tPUs48E0zPePM7eLeS4c9Ny9JE")
+        f"https://maps.googleapis.com/maps/api/place/nearbysearch/json?keyword=konya&type=restaurant&location=37.8746429%2C32.4931554&radius=15000&key={GOOGLE_MAPS_API_KEY}")
     print(response)
     if response.ok:
         data = response.json()
@@ -304,7 +313,7 @@ def discover_restaurant():
 @app.get("/library")
 def discover_library():
     response = requests.get(
-        f"https://maps.googleapis.com/maps/api/place/nearbysearch/json?keyword=kütüphane&type=library&location=37.8746429%2C32.4931554&radius=1500&key=AIzaSyB--nWp1tPUs48E0zPePM7eLeS4c9Ny9JE")
+        f"https://maps.googleapis.com/maps/api/place/nearbysearch/json?keyword=kütüphane&type=library&location=37.8746429%2C32.4931554&radius=1500&key={GOOGLE_MAPS_API_KEY}")
     if response.ok:
         data = response.json()
         new_collection = db1["Library"]

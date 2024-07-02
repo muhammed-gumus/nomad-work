@@ -161,14 +161,14 @@ const Page: React.FC<PageProps> = ({ params }) => {
           <div>
             {place.photos && place.photos.length > 0 ? (
               <img
-                src={`https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${place.photos[0].photo_reference}&key=AIzaSyB--nWp1tPUs48E0zPePM7eLeS4c9Ny9JE`}
+                src={`https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${place.photos[0].photo_reference}&key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}`}
                 className="rounded-full object-cover h-52 w-52 cursor-pointer hover:scale-110"
                 alt={`${place.name} Photo`}
                 onClick={() =>
                   place.photos &&
                   place.photos[0] &&
                   handleImageClick(
-                    `https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&photo_reference=${place.photos[0]?.photo_reference}&key=AIzaSyB--nWp1tPUs48E0zPePM7eLeS4c9Ny9JE`
+                    `https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&photo_reference=${place.photos[0]?.photo_reference}&key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}`
                   )
                 }
               />

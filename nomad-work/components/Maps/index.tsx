@@ -8,6 +8,12 @@ interface MapProps {
   height: string;
 }
 
+const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+
+if (!apiKey) {
+  throw new Error("Google Maps API key is not defined in environment variables");
+}
+
 function MyComponent({ lat, lng, width, height }: MapProps) {
   const center = {
     lat: lat,
@@ -20,7 +26,7 @@ function MyComponent({ lat, lng, width, height }: MapProps) {
 
   const { isLoaded } = useJsApiLoader({
     id: "google-map-script",
-    googleMapsApiKey: "AIzaSyB--nWp1tPUs48E0zPePM7eLeS4c9Ny9JE",
+    googleMapsApiKey: apiKey as string,
   });
 
   const [map, setMap] = React.useState<google.maps.Map | null>(null);
@@ -39,20 +45,18 @@ function MyComponent({ lat, lng, width, height }: MapProps) {
     setMap(null);
   }, []);
 
-  console.log(map);
-
   return isLoaded ? (
     <GoogleMap
-    mapContainerStyle={containerStyle}
-    center={center}
-    zoom={20}
-    onUnmount={onUnmount}
-  >
-    <Marker
-      position={{ lat, lng }}
-      animation={google.maps.Animation.BOUNCE} 
-    />
-  </GoogleMap>
+      mapContainerStyle={containerStyle}
+      center={center}
+      zoom={20}
+      onUnmount={onUnmount}
+    >
+      <Marker
+        position={{ lat, lng }}
+        animation={google.maps.Animation.BOUNCE} 
+      />
+    </GoogleMap>
   ) : (
     <></>
   );
