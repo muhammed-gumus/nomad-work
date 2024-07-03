@@ -1,13 +1,10 @@
 "use client";
 import React, { useState } from "react";
 import Link from "next/link";
-import Gmail from "../Icons/gmail/page";
-import Twitter from "../Icons/twitter/page";
-import Linkedin from "../Icons/linkedin/page";
 import { useEffect } from "react";
 import AuthModal from "@/components/AuthModal";
 import AuthRequiredModal from "@/components/AuthRequiredModal.tsx";
-import Image from 'next/image';
+import Image from "next/image";
 
 const descText =
   "Nomad Work, çalışma tarzınızı özgürleştiren yenilikçi bir sosyal medya platformudur. Çeşitli çalışma mekanlarını keşfetme fırsatı sunarak, her anınızı en verimli şekilde geçirmenizi sağlar. Sizden gelen değerlendirmeleri, yapay zeka destekli analiz ile puanlayarak, size en uygun mekanları önerir. Nomad Work sayesinde paylaşımlı ofislerden kafelere, özel ofislerden benzersiz çalışma alanlarına kadar geniş bir seçenek yelpazesi arasında dolaşabilir ve çalışma deneyiminizi kişiselleştirebilirsiniz. Çalışma dünyasını keşfedin, değerlendirin ve paylaşın;  ";
@@ -232,15 +229,9 @@ const Page: React.FC = () => {
               </p>
               <div className="flex justify-center">
                 <div className="flex flex-row gap-4 mt-2">
-                  <Link href={member.twitter}>
-                    <Twitter />
-                  </Link>
-                  <Link href={member.linkedin}>
-                    <Linkedin />
-                  </Link>
-                  <Link href={member.mail}>
-                    <Gmail />
-                  </Link>
+                  <Link href={member.twitter}>Twitter</Link>
+                  <Link href={member.linkedin}>Linkedin </Link>
+                  <Link href={member.mail}>Gmail</Link>
                 </div>
               </div>
             </div>
