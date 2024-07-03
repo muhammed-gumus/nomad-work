@@ -1,5 +1,6 @@
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 
 const titleText1 = "Nomad";
 const titleText2 = "Work";
@@ -27,10 +28,12 @@ const Banner: React.FC = () => {
       </div>
 
       <div className="hidden md:block flex items-center justify-center md:w-1/3">
-        <img
+        <Image
           src={customImageUrl}
           alt="Banner"
           className="rounded-full object-cover"
+          width={400}
+          height={400}
         />
       </div>
     </div>

@@ -111,7 +111,7 @@ def preprocess_text(text):
     return ' '.join(words)
 
 
-data = pd.read_csv('/Users/muhammedgumus/Desktop/nomad/nomad-work/nomad-work/backend/yorumlar.csv',
+data = pd.read_csv('/Users/muhammedgumus/Desktop/my project/nomad/nomad-work/nomad-work/backend/yorumlar.csv',
                    usecols=['Review Text', 'Rating'])
 data = data.sample(frac=1, random_state=42)
 

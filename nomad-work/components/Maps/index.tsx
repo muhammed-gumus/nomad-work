@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
 
 interface MapProps {
@@ -15,10 +15,7 @@ if (!apiKey) {
 }
 
 function MyComponent({ lat, lng, width, height }: MapProps) {
-  const center = {
-    lat: lat,
-    lng: lng,
-  };
+  const center = useMemo(() => ({ lat, lng }), [lat, lng]);
   const containerStyle = {
     width: width,
     height: height,

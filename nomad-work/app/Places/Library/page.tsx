@@ -1,8 +1,9 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import Link from "next/link";
 import { useAverageRate } from "@/context/AverageRateContext"; 
+import Image from "next/image";
 
 const LoadingSpinner: React.FC = () => (
   <div className="flex items-center justify-center mt-8">
@@ -40,6 +41,15 @@ const Page: React.FC<LibraryProps> = ({ sortByRating, sortByNomadRating, showOnl
   const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const { averageRates } = useAverageRate();
+
+  const getAverageRating = useCallback((placeName: string) => {
+    const placeComments = comments.filter(comment => comment.place_name === placeName);
+    if (placeComments.length === 0) return "Değerlendirme Yok";
+
+    const totalRating = placeComments.reduce((sum, comment) => sum + parseFloat(comment.rating), 0);
+    const averageRating = totalRating / placeComments.length;
+    return isNaN(averageRating) ? "Değerlendirme Yok" : averageRating.toFixed(2);
+  }, [comments]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -103,16 +113,7 @@ const Page: React.FC<LibraryProps> = ({ sortByRating, sortByNomadRating, showOnl
     };
 
     fetchData();
-  }, [sortByRating, sortByNomadRating, showOnlyOpen]);
-
-  const getAverageRating = (placeName: string) => {
-    const placeComments = comments.filter(comment => comment.place_name === placeName);
-    if (placeComments.length === 0) return "Değerlendirme Yok";
-
-    const totalRating = placeComments.reduce((sum, comment) => sum + parseFloat(comment.rating), 0);
-    const averageRating = totalRating / placeComments.length;
-    return isNaN(averageRating) ? "Değerlendirme Yok" : averageRating.toFixed(2);
-  };
+  }, [sortByRating, sortByNomadRating, showOnlyOpen, getAverageRating]);
 
   if (loading) {
     return <LoadingSpinner />;
@@ -127,13 +128,13 @@ const Page: React.FC<LibraryProps> = ({ sortByRating, sortByNomadRating, showOnl
           key={place.place_id}
         >
           {place.photos && place.photos.length > 0 ? (
-            <img
+            <Image
               src={`https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${place.photos[0].photo_reference}&key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}`}
               className="rounded-full object-cover h-40 w-40"
               alt={`${place.name} Photo`}
             />
           ) : (
-            <img
+            <Image
               src="https://pgsd.fip.hamzanwadi.ac.id/assets/upload/image/aa.png"
               className="rounded-full object-cover h-40 w-40"
               alt="Default Photo"

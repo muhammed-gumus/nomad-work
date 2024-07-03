@@ -1,4 +1,3 @@
-// login.tsx
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -25,7 +24,7 @@ const LoginPage: React.FC = () => {
       setIsAuthenticated(true);
       setUser(localUserName);
     }
-  }, []);
+  }, [localToken, localUserName]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

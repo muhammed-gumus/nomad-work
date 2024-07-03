@@ -6,6 +6,7 @@ import Map from "../../../components/Maps";
 import Navbar from "@/components/Navbar";
 import Modal from "@/components/ImageModal";
 import Link from "next/link";
+import Image from "next/image";
 
 const LoadingSpinner: React.FC = () => (
   <div className="flex items-center justify-center mt-8">
@@ -105,7 +106,7 @@ const Page: React.FC<PageProps> = ({ params }) => {
           console.error("Yorumları çekerken bir hata oluştu:", error);
         });
     }
-  }, [place]);
+  }, [place, comments]);
 
   const handleImageClick = (imageUrl: string) => {
     setModalImageUrl(imageUrl);
@@ -160,7 +161,7 @@ const Page: React.FC<PageProps> = ({ params }) => {
         <div className="flex flex-col justify-center items-start w-full px-8 gap-4 rounded-lg">
           <div>
             {place.photos && place.photos.length > 0 ? (
-              <img
+              <Image
                 src={`https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${place.photos[0].photo_reference}&key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}`}
                 className="rounded-full object-cover h-52 w-52 cursor-pointer hover:scale-110"
                 alt={`${place.name} Photo`}
@@ -171,12 +172,16 @@ const Page: React.FC<PageProps> = ({ params }) => {
                     `https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&photo_reference=${place.photos[0]?.photo_reference}&key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}`
                   )
                 }
+                width={208}
+                height={208}
               />
             ) : (
-              <img
+              <Image
                 src="https://pgsd.fip.hamzanwadi.ac.id/assets/upload/image/aa.png"
                 className="rounded-full object-cover h-40 w-40"
                 alt="Default Photo"
+                width={160}
+                height={160}
               />
             )}
             {modalImageUrl && (

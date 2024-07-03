@@ -1,5 +1,5 @@
-// Modal.tsx
 import React from "react";
+import Image from "next/image";
 
 interface ModalProps {
   imageUrl: string;
@@ -38,10 +38,12 @@ const Modal: React.FC<ModalProps> = ({ imageUrl, onClose }) => {
             </svg>
           </button>
         </div>
-        <img
+        <Image
           src={imageUrl}
           alt="Full-size Image"
           className="max-w-full max-h-full"
+          width={550}
+          height={550}
         />
       </div>
     </div>

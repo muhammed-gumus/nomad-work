@@ -132,7 +132,7 @@ const Page: React.FC = () => {
               onChange={handleSortByRating}
               className="rounded border-gray-300 focus:border-yellow-400 focus:ring focus:ring-yellow-200 focus:ring-opacity-50"
             />
-            <span>Rating'e Göre Sırala</span>
+            <span>Rating&apos;e Göre Sırala</span>
           </label>
 
           <label className="flex items-center gap-2">
@@ -152,7 +152,7 @@ const Page: React.FC = () => {
               onChange={handleSortByNomadRating}
               className="rounded border-gray-300 focus:border-yellow-400 focus:ring focus:ring-yellow-200 focus:ring-opacity-50"
             />
-            <span>Nomad Rating'e Göre Sırala</span>
+            <span>Nomad Rating&apos;e Göre Sırala</span>
           </label>
         </div>
 

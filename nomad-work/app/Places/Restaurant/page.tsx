@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Link from "next/link";
+import Image from "next/image";
 
 const LoadingSpinner: React.FC = () => (
   <div className="flex items-center justify-center mt-8">
@@ -115,16 +116,20 @@ const Restaurant: React.FC<RestaurantProps> = ({ sortByRating, showOnlyOpen, sor
           key={place.place_id}
         >
           {place.photos && place.photos.length > 0 ? (
-            <img
+            <Image
               src={`https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${place.photos[0].photo_reference}&key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}`}
               className="rounded-full object-cover h-40 w-40"
               alt={`${place.name} Photo`}
+              width={160}
+              height={160}
             />
           ) : (
-            <img
+            <Image
               src="https://pgsd.fip.hamzanwadi.ac.id/assets/upload/image/aa.png"
               className="rounded-full object-cover h-40 w-40"
               alt="Default Photo"
+              width={160}
+              height={160}
             />
           )}
           <div>

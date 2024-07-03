@@ -1,5 +1,3 @@
-// components/Page.jsx
-
 "use client";
 import React, { useState } from "react";
 import Link from "next/link";
@@ -9,6 +7,7 @@ import Linkedin from "../Icons/linkedin/page";
 import { useEffect } from "react";
 import AuthModal from "@/components/AuthModal";
 import AuthRequiredModal from "@/components/AuthRequiredModal.tsx";
+import Image from 'next/image';
 
 const descText =
   "Nomad Work, çalışma tarzınızı özgürleştiren yenilikçi bir sosyal medya platformudur. Çeşitli çalışma mekanlarını keşfetme fırsatı sunarak, her anınızı en verimli şekilde geçirmenizi sağlar. Sizden gelen değerlendirmeleri, yapay zeka destekli analiz ile puanlayarak, size en uygun mekanları önerir. Nomad Work sayesinde paylaşımlı ofislerden kafelere, özel ofislerden benzersiz çalışma alanlarına kadar geniş bir seçenek yelpazesi arasında dolaşabilir ve çalışma deneyiminizi kişiselleştirebilirsiniz. Çalışma dünyasını keşfedin, değerlendirin ve paylaşın;  ";
@@ -70,7 +69,6 @@ const Page: React.FC = () => {
   const [isAuthRequiredModalOpen, setIsAuthRequiredModalOpen] = useState(false);
 
   useEffect(() => {
-    // localStorage'dan jwtToken ve username kontrolü yap
     const jwtToken = localStorage.getItem("jwtToken");
     const username = localStorage.getItem("username");
 
@@ -131,10 +129,12 @@ const Page: React.FC = () => {
             </button>
           </Link>
         </div>
-        <img
+        <Image
           className="rounded-full object-cover w-full md:w-1/3"
-          src="images/about-banner.png"
+          src="/images/about-banner.png"
           alt="About Banner"
+          width={500}
+          height={500}
         />
       </div>
       <div className="w-full flex flex-row tracking-wider text-2xl font-extrabold items-center justify-evenly mt-4 bg-white py-6 text-black ">
@@ -148,8 +148,8 @@ const Page: React.FC = () => {
             xmlns="http://www.w3.org/2000/svg"
           >
             <path
-              fill-rule="evenodd"
-              clip-rule="evenodd"
+              fillRule="evenodd"
+              clipRule="evenodd"
               d="M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7ZM14 7C14 8.10457 13.1046 9 12 9C10.8954 9 10 8.10457 10 7C10 5.89543 10.8954 5 12 5C13.1046 5 14 5.89543 14 7Z"
               fill="currentColor"
             />
@@ -169,8 +169,8 @@ const Page: React.FC = () => {
             xmlns="http://www.w3.org/2000/svg"
           >
             <path
-              fill-rule="evenodd"
-              clip-rule="evenodd"
+              fillRule="evenodd"
+              clipRule="evenodd"
               d="M12.4388 7L14.8387 4H7V10H14.8387L12.4388 7ZM19 12H7V22H5V2H19L15 7L19 12Z"
               fill="currentColor"
             />
@@ -190,8 +190,8 @@ const Page: React.FC = () => {
               fill="currentColor"
             />
             <path
-              fill-rule="evenodd"
-              clip-rule="evenodd"
+              fillRule="evenodd"
+              clipRule="evenodd"
               d="M13 21.5C15.973 21.5 18.441 19.3377 18.917 16.5H19C21.2091 16.5 23 14.7091 23 12.5C23 10.2909 21.2091 8.5 19 8.5V7.5H1V15.5C1 18.8137 3.68629 21.5 7 21.5H13ZM3 9.5V15.5C3 17.7091 4.79086 19.5 7 19.5H13C15.2091 19.5 17 17.7091 17 15.5V9.5H3ZM21 12.5C21 13.6046 20.1046 14.5 19 14.5V10.5C20.1046 10.5 21 11.3954 21 12.5Z"
               fill="currentColor"
             />
@@ -213,15 +213,17 @@ const Page: React.FC = () => {
       >
         <p className="text-4xl font-bold">TAKIMIMIZ</p>
         <div className="grid grid-cols-4 w-full items-start justify-center gap-4 px-8 mt-8 mb-10">
-          {/* Team cards */}
           {teamMembers.map((member) => (
             <div
               key={member.id}
               className="bg-white w-full px-4 py-4 flex justify-center items-center flex-col rounded-lg"
             >
-              <img
+              <Image
                 className="rounded-full object-cover py-2 px-2 w-2/3 "
                 src={member.photo}
+                alt={member.name}
+                width={200}
+                height={200}
               />
               <p className="text-2xl font-bold mb-2">{member.name}</p>
               <p className="text-l italic mb-2">{member.title}</p>

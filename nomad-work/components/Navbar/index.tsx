@@ -1,8 +1,8 @@
-// components/Navbar.tsx
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 interface NavbarProps {
   isUserLoggedOut?: boolean; 
@@ -71,10 +71,12 @@ const Navbar: React.FC<NavbarProps> = ({ isUserLoggedOut = false }) => {
     <nav className="py-2 px-24 flex justify-between items-center w-full text-black bg-white rounded-sm">
       <div className="text-2xl font-bold hidden md:block">
         <Link href="/">
-          <img
+          <Image
             src="/images/logo.jpeg"
             className="cursor-pointer w-20 rounded-full"
             alt="Logo"
+            width={80}
+            height={80}
           />
         </Link>
       </div>
