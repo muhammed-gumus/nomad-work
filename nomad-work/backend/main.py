@@ -31,7 +31,9 @@ import requests
 from dotenv import load_dotenv
 import os
 
-load_dotenv()
+# Ortam değişkenlerini yükle - .env dosyası bir üst dizinde
+env_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), '.env')
+load_dotenv(dotenv_path=env_path)
 
 # Now you can access environment variables using os.getenv
 MONGO_URI = os.getenv('MONGO_URI')
@@ -40,7 +42,18 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 GMAIL_SENDER_EMAIL = os.getenv('GMAIL_SENDER_EMAIL')
 GMAIL_SENDER_PASSWORD = os.getenv('GMAIL_SENDER_PASSWORD')
 
-myclient = MongoClient(MONGO_URI)
+if not MONGO_URI:
+    print("UYARI: MONGO_URI bulunamadı! .env dosyası kontrol edilmeli.")
+else:
+    print(f"MongoDB Bağlantısı başlatılıyor...")
+
+try:
+    myclient = MongoClient(MONGO_URI)
+    # Bağlantıyı test et
+    myclient.admin.command('ping')
+    print("BAŞARILI: MongoDB bağlantısı kuruldu.")
+except Exception as e:
+    print(f"HATA: MongoDB bağlantısı başarısız: {e}")
 
 
 db1 = myclient["Discover"]
@@ -49,6 +62,20 @@ db3 = myclient["Mails"]
 db4 = myclient["Comments"]
 
 app = FastAPI()
+
+@app.get("/health")
+def health_check():
+    try:
+        myclient.admin.command('ping')
+        user_count = db2["User"].count_documents({})
+        return {
+            "status": "ok", 
+            "database": "connected", 
+            "user_count": user_count,
+            "message": "Backend is running and DB is connected."
+        }
+    except Exception as e:
+        return {"status": "error", "database": str(e)}
 
 origins = ["*"]
 app.add_middleware(
@@ -111,8 +138,13 @@ def preprocess_text(text):
     return ' '.join(words)
 
 
-data = pd.read_csv('/Users/muhammedgumus/Desktop/my project/nomad/nomad-work/nomad-work/backend/yorumlar.csv',
-                   usecols=['Review Text', 'Rating'])
+import os
+
+# Mevcut dosyanın konumunu alalım
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+csv_path = os.path.join(BASE_DIR, 'yorumlar.csv')
+
+data = pd.read_csv(csv_path, usecols=['Review Text', 'Rating'])
 data = data.sample(frac=1, random_state=42)
 
 X = data['Review Text'].apply(preprocess_text)

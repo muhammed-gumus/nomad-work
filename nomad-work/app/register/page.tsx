@@ -101,9 +101,9 @@ const RegisterPage: React.FC = () => {
         setIsRegistrationSuccess(true);
         setError(null);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Fetch hatası:", error);
-      setError("Kullanıcı adı veya mail adresi zaten kullanılıyor.");
+      setError(error.message || "Bir hata oluştu. Sunucu bağlantısını kontrol edin.");
     }
   };
 
@@ -203,7 +203,7 @@ const RegisterPage: React.FC = () => {
           </div>
           <div className="flex flex-col items-center gap-4">
             {isRegistrationSuccess ? (
-              <Link href={"/Login"} className="w-full">
+              <Link href={"/login"} className="w-full">
                 <button
                   type="submit"
                   className="w-full bg-white text-black p-2 rounded-md hover:text-yellow-500"
@@ -219,7 +219,7 @@ const RegisterPage: React.FC = () => {
                 >
                   Kayıt Ol
                 </button>
-                <Link href={"/Login"}>Zaten üye misin? Giriş yap!</Link>
+                <Link href={"/login"}>Zaten üye misin? Giriş yap!</Link>
               </div>
             )}
           </div>

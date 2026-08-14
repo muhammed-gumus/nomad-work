@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import Cafe from "../Places/Cafe/page";
-import Library from "../Places/Library/page";
-import Restaurant from "../Places/Restaurant/page";
+import Cafe from "../places/cafe/page";
+import Library from "../places/library/page";
+import Restaurant from "../places/restaurant/page";
 import AuthModal from "@/components/AuthModal";
 import AuthRequiredModal from "@/components/AuthRequiredModal.tsx";
 

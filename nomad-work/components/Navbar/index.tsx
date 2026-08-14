@@ -43,7 +43,7 @@ const Navbar: React.FC<NavbarProps> = ({ isUserLoggedOut = false }) => {
     localStorage.removeItem("jwtToken");
     localStorage.removeItem("username");
     setLoggedInUsername(null);
-    router.push("/Login");
+    router.push("/login");
     window.location.reload();
   };
 
@@ -101,26 +101,26 @@ const Navbar: React.FC<NavbarProps> = ({ isUserLoggedOut = false }) => {
             x
           </button>
           <ul className="flex gap-2">
-            <MenuItem href="/About" text="Hakkımızda" />
-            <MenuItem href="/Discover" text="Keşfet" />
-            <MenuItem href="/Contact" text="İletişim" />
+            <MenuItem href="/about" text="Hakkımızda" />
+            <MenuItem href="/discover" text="Keşfet" />
+            <MenuItem href="/contact" text="İletişim" />
             {loggedInUsername ? (
               <li onClick={handleLogout} className="cursor-pointer hover:text-yellow-400">Çıkış Yap</li>
             ) : (
-              <MenuItem href="/Register" text="Giriş Yap/Kayıt Ol" />
+              <MenuItem href="/register" text="Giriş Yap/Kayıt Ol" />
             )}
           </ul>
         </div>
       )}
 
       <div className="hidden md:flex space-x-4 list-none items-center">
-        <MenuItem href="/About" text="Hakkımızda" />
-        <MenuItem href="/Discover" text="Keşfet" />
-        <MenuItem href="/Contact" text="İletişim" />
+        <MenuItem href="/about" text="Hakkımızda" />
+        <MenuItem href="/discover" text="Keşfet" />
+        <MenuItem href="/contact" text="İletişim" />
         {loggedInUsername ? (
           <li onClick={handleLogout} className="cursor-pointer hover:text-yellow-400">Çıkış Yap</li>
         ) : (
-          <MenuItem href="/Register" text="Giriş Yap/Kayıt Ol" />
+          <MenuItem href="/register" text="Giriş Yap/Kayıt Ol" />
         )}
       </div>
     </nav>

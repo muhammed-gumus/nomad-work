@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+pymongo
+python-dotenv
+passlib[bcrypt]
+python-jose[cryptography]
+deep-translator
+scikit-learn
+pandas
+nltk
+requests

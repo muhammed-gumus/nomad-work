@@ -7,7 +7,7 @@ const titleText2 = "Work";
 const descText =
   "Nomad Work ile en iyi çalışma mekanlarını keşfedin, değerlendirin ve yapay zeka destekli puanlamalarla seçiminizi yapın. Çalışma tarzınızı özgürleştirin!"; // Kullanmak istediğiniz özel metin
 
-const customImageUrl = "images/banner.jpg";
+const customImageUrl = "/images/banner.jpg";
 
 const Banner: React.FC = () => {
   return (
@@ -20,7 +20,7 @@ const Banner: React.FC = () => {
 
         <p className="text-xl opacity-70 mb-6 md:pr-16">{descText}</p>
 
-        <Link href={"/Discover/"}>
+        <Link href={"/discover"}>
           <button className="text-white px-10 py-3 rounded-lg text-xl bg-black transition duration-300 hover:text-yellow-500 hover:bg-white mb-6 md:mb-0">
             Keşfet
           </button>

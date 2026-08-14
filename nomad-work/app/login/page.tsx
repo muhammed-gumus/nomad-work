@@ -62,9 +62,9 @@ const LoginPage: React.FC = () => {
       } else {
         setError("Kullanıcı adı veya şifre hatalı");
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Fetch error:", error);
-      setError("Giriş yapılamadı.");
+      setError(error.message || "Giriş yapılamadı. Sunucu bağlantısını kontrol edin.");
     }
   };
 
@@ -77,7 +77,7 @@ const LoginPage: React.FC = () => {
 
     setIsModalConfirmed(false);
 
-    router.push("/Login", { scroll: false });
+    router.push("/login", { scroll: false });
 
     window.location.reload();
   };
@@ -133,7 +133,7 @@ const LoginPage: React.FC = () => {
               >
                 Giriş Yap
               </button>
-              <Link href={"/Register"}>Üye değil misin? Kayıt ol!</Link>
+              <Link href={"/register"}>Üye değil misin? Kayıt ol!</Link>
             </div>
           </form>
         </div>

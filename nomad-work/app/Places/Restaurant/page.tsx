@@ -112,7 +112,7 @@ const Restaurant: React.FC<RestaurantProps> = ({ sortByRating, showOnlyOpen, sor
       {sortedAndFilteredPlaces.map((place, index) => (
         <Link
           className="flex flex-row items-start bg-white w-2/3 py-8 px-8 gap-8 rounded-lg"
-          href={`/PlaceDetails/${place.place_id}`}
+          href={`/placedetails/${place.place_id}`}
           key={place.place_id}
         >
           {place.photos && place.photos.length > 0 ? (

@@ -20,7 +20,7 @@ const AuthRequiredModal: React.FC<AuthRequiredModalProps> = ({
   }, [isOpen]);
 
   const handleRedirect = () => {
-    router.push("/Login");
+    router.push("/login");
   };
 
   return (
